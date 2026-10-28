@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Advanced_CSharp_03
 {
@@ -7,6 +7,9 @@ namespace Advanced_CSharp_03
         static void Main(string[] args)
         {
             PhoneBookManager.Run();
+
+            Console.WriteLine("\nPress any key to exit...");
+            Console.ReadKey();
         }
     }
 }
