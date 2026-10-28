@@ -93,7 +93,10 @@ namespace Advanced_CSharp_03
 
             Console.WriteLine("################################################################################");
             Console.WriteLine("               ALL 6 EXERCISES COMPLETED & VERIFIED SUCCESSFULLY                ");
-            Console.WriteLine("################################################################################");
+            Console.WriteLine("################################################################################\n");
+
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadKey();
         }
     }
     #endregion
