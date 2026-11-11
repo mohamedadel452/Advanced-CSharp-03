@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session 03 – الجزء 1: مقدمة Collections و List</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ECF1F4; --surface:#fff; --ink:#16212B; --muted:#526170; --line:#D3DDE4;
+  --accent:#0B6B76; --accent-soft:#DCEFF1; --warn:#A3304B; --warn-soft:#F8E5E9;
+  --code-bg:#0F1A26; --inline-bg:#E3EAEF;
+  --font:"IBM Plex Sans Arabic","Segoe UI",Tahoma,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Consolas,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C141B; --surface:#131E28; --ink:#E4ECF2; --muted:#93A3B2; --line:#243442;
+    --accent:#55C2CC; --accent-soft:#14323A; --warn:#F08AA0; --warn-soft:#35202A;
+    --code-bg:#08101A; --inline-bg:#1B2A37; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C141B; --surface:#131E28; --ink:#E4ECF2; --muted:#93A3B2; --line:#243442;
+  --accent:#55C2CC; --accent-soft:#14323A; --warn:#F08AA0; --warn-soft:#35202A;
+  --code-bg:#08101A; --inline-bg:#1B2A37; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.95;-webkit-text-size-adjust:100%}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+.top{position:sticky;top:0;z-index:10;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{max-width:1180px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:24px;min-height:56px}
+.brand{font-weight:700;white-space:nowrap}
+.parts{display:flex;gap:4px;overflow-x:auto;margin-inline-start:auto}
+.parts a{display:flex;flex-direction:column;line-height:1.35;padding:8px 14px;text-decoration:none;color:var(--muted);font-size:14px;white-space:nowrap;border-bottom:3px solid transparent}
+.parts a span{font-size:12px;opacity:.85}
+.parts a:hover{color:var(--ink)}
+.parts a[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent);font-weight:500}
+
+.layout{max-width:1180px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:230px minmax(0,1fr);gap:48px}
+.side{position:sticky;top:72px;align-self:start;max-height:calc(100vh - 90px);overflow:auto;padding:36px 0}
+.side-t{margin:0 0 10px;font-size:13px;color:var(--muted);font-weight:500}
+#toc{list-style:none;margin:0;padding:0;border-inline-start:2px solid var(--line)}
+#toc a{display:block;padding:5px 14px;margin-inline-start:-2px;border-inline-start:2px solid transparent;color:var(--muted);text-decoration:none;font-size:14px;line-height:1.55}
+#toc a:hover{color:var(--ink)}
+#toc a[aria-current="true"]{color:var(--accent);border-inline-start-color:var(--accent);font-weight:500}
+
+main{min-width:0;max-width:780px;padding:40px 0 72px}
+.hero{padding-bottom:24px;margin-bottom:8px;border-bottom:1px solid var(--line)}
+.part-l{margin:0 0 6px;color:var(--accent);font-weight:500;font-size:15px}
+h1{font-size:clamp(1.9rem,4.2vw,2.7rem);line-height:1.35;margin:0 0 12px;font-weight:700;direction:rtl}
+.lead{margin:0;color:var(--muted);font-size:1.08rem}
+h2{font-size:1.6rem;line-height:1.5;margin:3.2rem 0 .6rem;font-weight:700}
+h3{font-size:1.2rem;line-height:1.6;margin:2.2rem 0 .3rem;color:var(--accent);font-weight:700}
+p{margin:.9rem 0}
+ul,ol{padding-inline-start:1.5em;margin:.9rem 0}
+li{margin:.3rem 0}
+strong{font-weight:700}
+code{font-family:var(--mono);font-size:.86em;background:var(--inline-bg);padding:.12em .4em;border-radius:5px;direction:ltr;unicode-bidi:isolate}
+
+div.codehilite{position:relative;background:var(--code-bg);border-radius:10px;margin:1.1rem 0;direction:ltr;text-align:left}
+div.codehilite pre{margin:0;padding:18px 18px 16px;overflow-x:auto;font-family:var(--mono);font-size:13.5px;line-height:1.7;background:none;tab-size:4}
+div.codehilite code{background:none;padding:0;font-size:inherit;border-radius:0;direction:ltr;unicode-bidi:plaintext}
+.copy{position:absolute;top:8px;right:8px;font:500 12px var(--font);color:#C9D6E2;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:6px;padding:3px 10px;cursor:pointer}
+.copy:hover{background:rgba(255,255,255,.16)}
+
+.tw{overflow-x:auto;margin:1.2rem 0;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:15px;line-height:1.7}
+th,td{padding:10px 14px;text-align:start;vertical-align:top;border-bottom:1px solid var(--line)}
+th{background:var(--accent-soft);font-weight:700;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td code{white-space:nowrap}
+
+p.note{padding:14px 18px;border-inline-start:4px solid var(--accent);background:var(--accent-soft);border-radius:8px}
+p.note.warn{border-inline-start-color:var(--warn);background:var(--warn-soft)}
+p.note.warn>strong:first-child{color:var(--warn)}
+
+.qa-hint{color:var(--muted);font-size:15px;margin-bottom:1rem}
+details.qa{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin:10px 0}
+details.qa[open]{border-color:var(--accent)}
+details.qa>summary{list-style:none;cursor:pointer;padding:14px 18px 14px 46px;font-weight:700;position:relative;line-height:1.75}
+details.qa>summary::-webkit-details-marker{display:none}
+details.qa>summary::before{content:"+";position:absolute;inset-inline-end:auto;left:16px;top:12px;width:22px;height:22px;line-height:20px;text-align:center;border:1.5px solid var(--accent);border-radius:50%;color:var(--accent);font-weight:500}
+details.qa[open]>summary::before{content:"−"}
+.qa-body{padding:2px 18px 12px;border-top:1px dashed var(--line)}
+.qa-body p:first-child{margin-top:.8rem}
+
+.pager{display:flex;gap:16px;margin-top:4rem}
+.pn{flex:1;display:block;padding:14px 18px;border:1px solid var(--line);border-radius:10px;background:var(--surface);text-decoration:none;color:var(--ink);font-weight:500;line-height:1.6}
+.pn small{display:block;color:var(--muted);font-weight:400}
+.pn:hover{border-color:var(--accent)}
+.pn.next{text-align:start}
+
+@media (max-width:900px){
+  .layout{grid-template-columns:minmax(0,1fr);gap:0}
+  .side{display:none}
+  .brand{display:none}
+  .parts{margin-inline-start:0}
+  body{font-size:16.5px}
+  main{padding-top:28px}
+}
+@media print{.top,.side,.pager,.copy{display:none}details.qa>*{display:block}body{background:#fff}}
+
+pre { line-height: 125%; }
+td.linenos .normal { color: #6e7681; background-color: #0d1117; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #6e7681; background-color: #0d1117; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #e6edf3; background-color: #6e7681; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #e6edf3; background-color: #6e7681; padding-left: 5px; padding-right: 5px; }
+
+
+.codehilite .c { color: #8B949E; font-style: italic } /* Comment */
+.codehilite .err { color: #F85149 } /* Error */
+.codehilite .esc { color: #E6EDF3 } /* Escape */
+.codehilite .g { color: #E6EDF3 } /* Generic */
+.codehilite .k { color: #FF7B72 } /* Keyword */
+.codehilite .l { color: #A5D6FF } /* Literal */
+.codehilite .n { color: #E6EDF3 } /* Name */
+.codehilite .o { color: #FF7B72; font-weight: bold } /* Operator */
+.codehilite .x { color: #E6EDF3 } /* Other */
+.codehilite .p { color: #E6EDF3 } /* Punctuation */
+.codehilite .ch { color: #8B949E; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #8B949E; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #8B949E; font-weight: bold; font-style: italic } /* Comment.Preproc */
+.codehilite .cpf { color: #8B949E; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #8B949E; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #8B949E; font-weight: bold; font-style: italic } /* Comment.Special */
+.codehilite .gd { color: #FFA198; background-color: #490202 } /* Generic.Deleted */
+.codehilite .ge { color: #E6EDF3; font-style: italic } /* Generic.Emph */
+.codehilite .ges { color: #E6EDF3; font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #FFA198 } /* Generic.Error */
+.codehilite .gh { color: #79C0FF; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #56D364; background-color: #0F5323 } /* Generic.Inserted */
+.codehilite .go { color: #8B949E } /* Generic.Output */
+.codehilite .gp { color: #8B949E } /* Generic.Prompt */
+.codehilite .gs { color: #E6EDF3; font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #79C0FF } /* Generic.Subheading */
+.codehilite .gt { color: #FF7B72 } /* Generic.Traceback */
+.codehilite .g-Underline { color: #E6EDF3; text-decoration: underline } /* Generic.Underline */
+.codehilite .kc { color: #79C0FF } /* Keyword.Constant */
+.codehilite .kd { color: #FF7B72 } /* Keyword.Declaration */
+.codehilite .kn { color: #FF7B72 } /* Keyword.Namespace */
+.codehilite .kp { color: #79C0FF } /* Keyword.Pseudo */
+.codehilite .kr { color: #FF7B72 } /* Keyword.Reserved */
+.codehilite .kt { color: #FF7B72 } /* Keyword.Type */
+.codehilite .ld { color: #79C0FF } /* Literal.Date */
+.codehilite .m { color: #A5D6FF } /* Literal.Number */
+.codehilite .s { color: #A5D6FF } /* Literal.String */
+.codehilite .na { color: #E6EDF3 } /* Name.Attribute */
+.codehilite .nb { color: #E6EDF3 } /* Name.Builtin */
+.codehilite .nc { color: #F0883E; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #79C0FF; font-weight: bold } /* Name.Constant */
+.codehilite .nd { color: #D2A8FF; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #FFA657 } /* Name.Entity */
+.codehilite .ne { color: #F0883E; font-weight: bold } /* Name.Exception */
+.codehilite .nf { color: #D2A8FF; font-weight: bold } /* Name.Function */
+.codehilite .nl { color: #79C0FF; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #FF7B72 } /* Name.Namespace */
+.codehilite .nx { color: #E6EDF3 } /* Name.Other */
+.codehilite .py { color: #79C0FF } /* Name.Property */
+.codehilite .nt { color: #7EE787 } /* Name.Tag */
+.codehilite .nv { color: #79C0FF } /* Name.Variable */
+.codehilite .ow { color: #FF7B72; font-weight: bold } /* Operator.Word */
+.codehilite .pm { color: #E6EDF3 } /* Punctuation.Marker */
+.codehilite .w { color: #6E7681 } /* Text.Whitespace */
+.codehilite .mb { color: #A5D6FF } /* Literal.Number.Bin */
+.codehilite .mf { color: #A5D6FF } /* Literal.Number.Float */
+.codehilite .mh { color: #A5D6FF } /* Literal.Number.Hex */
+.codehilite .mi { color: #A5D6FF } /* Literal.Number.Integer */
+.codehilite .mo { color: #A5D6FF } /* Literal.Number.Oct */
+.codehilite .sa { color: #79C0FF } /* Literal.String.Affix */
+.codehilite .sb { color: #A5D6FF } /* Literal.String.Backtick */
+.codehilite .sc { color: #A5D6FF } /* Literal.String.Char */
+.codehilite .dl { color: #79C0FF } /* Literal.String.Delimiter */
+.codehilite .sd { color: #A5D6FF } /* Literal.String.Doc */
+.codehilite .s2 { color: #A5D6FF } /* Literal.String.Double */
+.codehilite .se { color: #79C0FF } /* Literal.String.Escape */
+.codehilite .sh { color: #79C0FF } /* Literal.String.Heredoc */
+.codehilite .si { color: #A5D6FF } /* Literal.String.Interpol */
+.codehilite .sx { color: #A5D6FF } /* Literal.String.Other */
+.codehilite .sr { color: #79C0FF } /* Literal.String.Regex */
+.codehilite .s1 { color: #A5D6FF } /* Literal.String.Single */
+.codehilite .ss { color: #A5D6FF } /* Literal.String.Symbol */
+.codehilite .bp { color: #E6EDF3 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #D2A8FF; font-weight: bold } /* Name.Function.Magic */
+.codehilite .vc { color: #79C0FF } /* Name.Variable.Class */
+.codehilite .vg { color: #79C0FF } /* Name.Variable.Global */
+.codehilite .vi { color: #79C0FF } /* Name.Variable.Instance */
+.codehilite .vm { color: #79C0FF } /* Name.Variable.Magic */
+.codehilite .il { color: #A5D6FF } /* Literal.Number.Integer.Long */
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">Session 03 · Collections</div>
+    <nav class="parts" aria-label="أجزاء السيشن">
+<a href="session03-part1-collections-list.html" aria-current="page"><span>الجزء 1</span>مقدمة Collections و <bdi dir="ltr">List&lt;T&gt;</bdi></a>
+<a href="session03-part2-dictionary-hashset.html"><span>الجزء 2</span>Dictionary و HashSet</a>
+<a href="session03-part3-queue-stack.html"><span>الجزء 3</span>Queue و Stack والخلاصة</a>
+    </nav>
+  </div>
+</header>
+<div class="layout">
+  <aside class="side">
+    <p class="side-t">في الصفحة دي</p>
+    <ol id="toc">
+<li><a href="#s1">1. ليه الـ Collections موجودة أصلاً؟</a></li>
+<li><a href="#s2">2. شجرة الـ Interfaces (لازم تحفظها كمنطق مش كحروف)</a></li>
+<li><a href="#s3">3. foreach: الميكانيزم الحقيقي</a></li>
+<li><a href="#s4">4. <bdi dir="ltr">List&lt;T&gt;</bdi> من جوه: Dynamic Array مش Linked List</a></li>
+<li><a href="#s5">5. العمليات الأساسية وتكلفتها الحقيقية</a></li>
+<li><a href="#s6">6. أخطاء حقيقية بتحصل في الإنتاج</a></li>
+<li><a href="#s7">7. ملاحظات تصميم الـ API</a></li>
+<li><a href="#s8">8. بناء الجملة الحديث (C# 12 / .NET 8)</a></li>
+<li><a href="#s9">9. أسئلة وإجابات (اختبر نفسك)</a></li>
+<li><a href="#s10">10. ملاحظة سينيور إضافية</a></li>
+    </ol>
+  </aside>
+  <main>
+    <div class="hero">
+      <p class="part-l">الجزء 1 من 3</p>
+      <h1>مقدمة Collections و <bdi dir="ltr">List&lt;T&gt;</bdi></h1>
+      <p class="lead">شرح سينيور لطالب Backend .NET: نبدأ بالفهم، وبعدها العمق، ومعاهم كود قابل للتجربة وأسئلة بإجاباتها.</p>
+    </div>
+    <article>
+
+<h2 id="s1">1. ليه الـ Collections موجودة أصلاً؟</h2>
+<h3>المشكلة اللي بدأت منها القصة: الـ Array</h3>
+<p>الـ Array في .NET هي أسرع هيكل بيانات عندك، لكن ليها قيد جوهري: <strong>حجمها ثابت</strong> وقت الإنشاء. السبب إنها بتتحجز كـ <strong>block متصل (contiguous)</strong> في الـ Memory. عشان كده الوصول بالـ index بقى سريع جداً (عنوان البداية + index × حجم العنصر). لكن لو عايز تزود عنصر، مفيش مكان مضمون ورا الـ block، فلازم:</p>
+<ol>
+<li>تعمل Array جديدة أكبر.</li>
+<li>تنسخ كل العناصر القديمة.</li>
+<li>ترمي القديمة للـ GC.</li>
+</ol>
+<p>الـ Collections اتعملت عشان تخبي الشغل ده وتقدم هياكل بيانات مناسبة لكل سيناريو (ترتيب، بحث سريع، تفرد، FIFO/LIFO).</p>
+<h3>الجيل الأول: System.Collections (non-generic) والمشكلة اللي حلّها الـ Generics</h3>
+<p>قبل .NET 2.0 كان فيه <code>ArrayList</code> و<code>Hashtable</code> بيخزنوا كل حاجة كـ <code>object</code>. ده معناه مشكلتين حقيقيتين:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="nn">System.Collections</span><span class="p">;</span>
+
+<span class="kt">var</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ArrayList</span><span class="p">();</span>
+<span class="n">list</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span><span class="w">        </span><span class="c1">// Boxing: الـ int بيتحط في object على الـ Heap (allocation)</span>
+<span class="n">list</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">);</span><span class="w">   </span><span class="c1">// مفيش أي اعتراض من الـ Compiler</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">list</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span><span class="w">        </span><span class="c1">// Unboxing</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">list</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span><span class="w">        </span><span class="c1">// InvalidCastException وقت التشغيل (Runtime) مش وقت الـ Compile</span>
+</code></pre></div>
+
+<ul>
+<li><strong>Boxing/Unboxing:</strong> كل value type (int, double, struct) بيتحول لـ object على الـ Heap، يعني allocation + ضغط على الـ GC. في قائمة فيها مليون رقم، ده مليون object زيادة.</li>
+<li><strong>غياب Type Safety:</strong> الخطأ بيظهر في الإنتاج مش وقت الكتابة.</li>
+</ul>
+<p>الحل كان الـ <strong>Generics</strong> (<code>List&lt;T&gt;</code>): الـ Compiler بيتأكد من النوع، ومفيش Boxing.</p>
+<h3>ليه الـ Generics في .NET أقوى من Java؟</h3>
+<p>في Java الـ Generics بتتمسح وقت الـ Compile (Type Erasure) والـ List بتبقى <code>List&lt;Object&gt;</code> تحت السطح. في .NET الـ Generics <strong>Reified</strong>: النوع موجود وقت التشغيل. الـ JIT بيعمل نسخة متخصصة من الكود لكل value type:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>النوع</th>
+<th>اللي بيحصل في الـ JIT</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>List&lt;int&gt;</code></td>
+<td>نسخة كود مخصصة لـ int، التخزين <code>int[]</code> مباشرة، مفيش Boxing</td>
+</tr>
+<tr>
+<td><code>List&lt;double&gt;</code></td>
+<td>نسخة تانية مخصصة</td>
+</tr>
+<tr>
+<td><code>List&lt;string&gt;</code> / <code>List&lt;Product&gt;</code> (reference types)</td>
+<td>نسخة <strong>مشتركة</strong> واحدة لكل الـ reference types لأن حجم الـ reference ثابت</td>
+</tr>
+</tbody>
+</table></div>
+<p class="note info"><strong>تصحيح لمفهوم شائع:</strong> "استخدام Generics بيبطّأ البرنامج لأنه بيعمل نسخ كتير". غلط، العكس تماماً: ده اللي بيديك سرعة تقترب من الـ Array الخام.</p>
+<h2 id="s2">2. شجرة الـ Interfaces (لازم تحفظها كمنطق مش كحروف)</h2>
+<div class="codehilite"><pre><span></span><code>IEnumerable&lt;T&gt;          ← تقدر تعمل foreach (قراءة فقط، تسلسل)
+  └─ IReadOnlyCollection&lt;T&gt;  ← + Count
+       └─ IReadOnlyList&lt;T&gt;   ← + indexer [i] (قراءة)
+  └─ ICollection&lt;T&gt;          ← + Count, Add, Remove, Contains, Clear
+       └─ IList&lt;T&gt;           ← + indexer [i] (قراءة وكتابة)، Insert, RemoveAt, IndexOf
+</code></pre></div>
+
+<div class="tw"><table>
+<thead>
+<tr>
+<th>الـ Interface</th>
+<th>بتقدم إيه</th>
+<th>متى تستخدمه كنوع Parameter / Return</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>IEnumerable&lt;T&gt;</code></td>
+<td>iteration بس</td>
+<td>الـ Parameter لو هتعمل loop واحد بس. أوسع نوع ممكن.</td>
+</tr>
+<tr>
+<td><code>IReadOnlyList&lt;T&gt;</code></td>
+<td>iteration + Count + index</td>
+<td>الـ Return لو مش عايز المستدعي يعدّل القائمة</td>
+</tr>
+<tr>
+<td><code>ICollection&lt;T&gt;</code></td>
+<td>Add / Remove / Count</td>
+<td>الـ Navigation properties في EF Core</td>
+</tr>
+<tr>
+<td><code>IList&lt;T&gt;</code></td>
+<td>كل حاجة بالـ index</td>
+<td>نادراً، غالباً <code>List&lt;T&gt;</code> أو <code>IReadOnlyList&lt;T&gt;</code> أنسب</td>
+</tr>
+</tbody>
+</table></div>
+<p class="note info"><strong>القاعدة الصناعية:</strong> استقبل أضعف Interface تحتاجه، وارجّع أقوى Interface تقدر تضمنه. الهدف تقليل التزاوج (Coupling) وإخفاء التنفيذ.</p>
+<p class="note info"><strong>Trade-off:</strong> لو رجّعت <code>IEnumerable&lt;T&gt;</code> من Method وجواها ماسك <code>List&lt;T&gt;</code>، المستدعي ممكن يعمل Cast لـ List ويعدّل. ولو رجّعت <code>IEnumerable&lt;T&gt;</code> من LINQ Query مؤجل التنفيذ (Deferred Execution)، كل مرة هتعمل فيها foreach الـ Query هيتنفّذ من الأول (ممكن يعني Database round trip تاني!). ده مصدر Bug شائع في الإنتاج.</p>
+<h2 id="s3">3. foreach: الميكانيزم الحقيقي</h2>
+<p class="note warn"><strong>مفهوم خاطئ شائع:</strong> "foreach بتشتغل على أي حاجة بتطبق IEnumerable". الحقيقة إن الـ Compiler بيدور على <strong>Pattern</strong>: أي نوع فيه method اسمها <code>GetEnumerator()</code> بترجّع نوع فيه <code>MoveNext()</code> و<code>Current</code>. (ده Duck Typing وقت الـ Compile.) الكود ده:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">list</span><span class="p">)</span>
+<span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+</code></pre></div>
+
+<p>بيتحول تقريباً لـ:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">list</span><span class="p">.</span><span class="n">GetEnumerator</span><span class="p">())</span><span class="w">   </span><span class="c1">// List&lt;T&gt;.Enumerator وهو struct</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">MoveNext</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">Current</span><span class="p">;</span>
+<span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>الـ <code>List&lt;T&gt;</code> بيرجّع Enumerator من نوع <strong>struct</strong> (مش class) عشان مفيش Allocation على الـ Heap في كل foreach. لكن لو تعاملت مع القائمة من خلال <code>IEnumerable&lt;T&gt;</code> الـ struct ده بيتعمله <strong>Boxing</strong>.</p>
+<h3>الـ <code>_version</code>: ليه بتيجيلك "Collection was modified"؟</h3>
+<p>كل <code>List&lt;T&gt;</code> جواها حقل <code>_version</code> بيزيد مع كل عملية بتغيّر الهيكل (Add, Remove, Insert, Clear, Sort...). الـ Enumerator بيحفظ نسخة منه وقت إنشائه، وفي كل <code>MoveNext()</code> بيقارن. لو اختلفوا يرمي <code>InvalidOperationException</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">nums</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="p">};</span>
+
+<span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">nums</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">        </span><span class="n">nums</span><span class="p">.</span><span class="n">Remove</span><span class="p">(</span><span class="n">n</span><span class="p">);</span><span class="w">   </span><span class="c1">// InvalidOperationException: Collection was modified</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>ليه اللغة صممتها كده؟</strong> لو سمحت بالتعديل أثناء الـ iteration، الـ Enumerator ممكن يتخطى عناصر أو يكررها بدون ما تحس (لأن الـ indices اتزحزحت). الأمان هنا قيد مقصود: بيحوّل Bug صامت لـ Exception واضح. وانتبه: الـ check ده <strong>ليس Thread Safety</strong>، هو "best effort" لاكتشاف أخطاء البرمجة فقط.</p>
+<h3>4 طرق لحذف عناصر أثناء المرور</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>الطريقة</th>
+<th>الكود</th>
+<th>التكلفة / الملاحظة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RemoveAll</code> (الأفضل)</td>
+<td><code>nums.RemoveAll(n =&gt; n % 2 == 0);</code></td>
+<td><bdi dir="ltr">O(n)</bdi> بمرور واحد، بيعمل Compact فعلي، لا يكسر الـ Enumerator</td>
+</tr>
+<tr>
+<td>for عكسي</td>
+<td><code>for (int i = nums.Count - 1; i &gt;= 0; i--) if (...) nums.RemoveAt(i);</code></td>
+<td>الحذف من الآخر بيمنع زحزحة العناصر اللي لسه ماتفحصتش، لكن كل <code>RemoveAt</code> فيه <bdi dir="ltr">O(n)</bdi> shift، يعني ممكن يوصل <bdi dir="ltr">O(n²)</bdi></td>
+</tr>
+<tr>
+<td><code>ToList()</code> Copy</td>
+<td><code>foreach (var n in nums.ToList()) nums.Remove(n);</code></td>
+<td>بيعمل نسخة كاملة (Memory إضافية) + <code>Remove</code> نفسه <bdi dir="ltr">O(n)</bdi></td>
+</tr>
+<tr>
+<td>LINQ Where</td>
+<td><code>nums = nums.Where(n =&gt; n % 2 != 0).ToList();</code></td>
+<td>بيعمل List جديدة، المرجع القديم عند أي حد تاني مش هيتأثر</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="s4">4. <bdi dir="ltr">List&lt;T&gt;</bdi> من جوه: Dynamic Array مش Linked List</h2>
+<p class="note warn"><strong>مفهوم خاطئ شائع رقم 1:</strong> "List هي Linked List". غلط. <code>List&lt;T&gt;</code> هي <strong>Array ديناميكية</strong> بتشتغل كده تحت السطح (مبسطة):</p>
+<div class="codehilite"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">List</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="n">T</span><span class="p">[]</span><span class="w"> </span><span class="n">_items</span><span class="p">;</span><span class="w">   </span><span class="c1">// الـ Array الحقيقية</span>
+<span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">_size</span><span class="p">;</span><span class="w">    </span><span class="c1">// Count: عدد العناصر المستخدمة فعلاً</span>
+<span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">_version</span><span class="p">;</span><span class="w"> </span><span class="c1">// لاكتشاف التعديل أثناء الـ iteration</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>ولو عايز Linked List فعلاً فهي <code>LinkedList&lt;T&gt;</code> (ونادراً بتكسب في الواقع بسبب الـ Cache Locality والـ allocation لكل Node).</p>
+<h3>Count مقابل Capacity (فخ كبير)</h3>
+<ul>
+<li><code>Count</code>: عدد العناصر <strong>الفعلية</strong>.</li>
+<li><code>Capacity</code>: حجم الـ Array الداخلية (<code>_items.Length</code>).</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span><span class="w">   </span><span class="c1">// Capacity=10, Count=0</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">list</span><span class="p">.</span><span class="n">Count</span><span class="p">);</span><span class="w">  </span><span class="c1">// 0</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">list</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span><span class="w">     </span><span class="c1">// ArgumentOutOfRangeException!</span>
+</code></pre></div>
+
+<p><strong>ليه؟</strong> الـ indexer بيتحقق من <code>index &lt; _size</code> مش <code>_items.Length</code>. فالمفهوم الخاطئ إن <code>new List&lt;int&gt;(10)</code> بتعمل 10 عناصر زي <code>new int[10]</code>. لأ، هي بتحجز مساحة بس، لكن القائمة فاضية.</p>
+<h3>استراتيجية النمو (Growth)</h3>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">last</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">list</span><span class="p">.</span><span class="n">Capacity</span><span class="p">;</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$&quot;Start: Capacity={last}&quot;</span><span class="p">);</span>
+
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">list</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">list</span><span class="p">.</span><span class="n">Capacity</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">last</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">last</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">list</span><span class="p">.</span><span class="n">Capacity</span><span class="p">;</span>
+<span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$&quot;Count={list.Count}, Capacity={last}&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>الناتج:</p>
+<div class="codehilite"><pre><span></span><code>Start: Capacity=0
+Count=1,   Capacity=4
+Count=5,   Capacity=8
+Count=9,   Capacity=16
+Count=17,  Capacity=32
+Count=33,  Capacity=64
+Count=65,  Capacity=128
+</code></pre></div>
+
+<p>أول <code>Add</code> بيحجز 4، وبعد كده الـ Capacity <strong>بتتضاعف</strong> كل ما تمتلي. كل مرة بيحصل: Array جديدة + <code>Array.Copy</code> + القديمة تبقى Garbage.</p>
+<p><strong>ليه التضاعف مش +1؟</strong> لو زوّدنا واحد واحد، كل Add هيكلف <bdi dir="ltr">O(n)</bdi> نسخ، يعني n عملية Add = <bdi dir="ltr">O(n²)</bdi>. بالتضاعف، مجموع كل النسخ على n عملية بيطلع حوالي 2n، يعني <strong>Amortized <bdi dir="ltr">O(1)</bdi></strong> لكل Add. دي نفسها فكرة التحليل المُستهلَك (Amortized Analysis): معظم الـ Add رخيصة، وكل فترة واحدة غالية.</p>
+<p class="note info"><strong>الـ Trade-off:</strong> الـ Capacity ممكن تضيّع ذاكرة تصل لـ 50% من الحجم. ولو قائمة فيها 33 عنصر، الـ Capacity هتبقى 64.</p>
+<h3>الأداء في الإنتاج: حدد الـ Capacity مقدماً لو تعرف الحجم</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// سيء: ~20 مرة إعادة حجز ونسخ لمليون عنصر</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="n">_000_000</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+
+<span class="c1">// أفضل: حجز واحد</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">1</span><span class="n">_000_000</span><span class="p">);</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="n">_000_000</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+</code></pre></div>
+
+<p>مشكلة إضافية: أي Array حجمها 85,000 byte أو أكتر بتتحجز في الـ <strong>Large Object Heap (LOH)</strong>. التضاعف المتكرر بيعمل Arrays كبيرة قصيرة العمر في الـ LOH، والـ LOH بتتنضّف مع Gen 2 GC بس (أغلى)، فبيحصل ضغط وتفتت (Fragmentation) في الـ Memory. لـ <code>List&lt;int&gt;</code> ده بيبدأ عند حوالي 21 ألف عنصر.</p>
+<ul>
+<li><code>TrimExcess()</code>: بتقللل الـ Capacity للـ Count (عملية نسخ، استخدمها لما القائمة تستقر ومش هتزيد).</li>
+<li><code>Clear()</code>: بتمسح العناصر لكن <strong>لا</strong> بتقلل الـ Capacity، يعني الذاكرة فاضلة محجوزة.</li>
+</ul>
+<h2 id="s5">5. العمليات الأساسية وتكلفتها الحقيقية</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>العملية</th>
+<th>التكلفة</th>
+<th>ليه</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list[i]</code> (قراءة/كتابة)</td>
+<td><bdi dir="ltr">O(1)</bdi></td>
+<td>حساب عنوان مباشر في الـ Array</td>
+</tr>
+<tr>
+<td><code>Add(x)</code></td>
+<td><bdi dir="ltr">O(1)</bdi> Amortized / <bdi dir="ltr">O(n)</bdi> لو حصل Resize</td>
+<td>ممكن يحصل نسخ</td>
+</tr>
+<tr>
+<td><code>AddRange(c)</code></td>
+<td><bdi dir="ltr">O(m)</bdi></td>
+<td>m عدد العناصر المضافة</td>
+</tr>
+<tr>
+<td><code>Insert(i, x)</code></td>
+<td><bdi dir="ltr">O(n)</bdi></td>
+<td>بيزحزح كل اللي بعد i بـ <code>Array.Copy</code></td>
+</tr>
+<tr>
+<td><code>RemoveAt(i)</code></td>
+<td><bdi dir="ltr">O(n)</bdi></td>
+<td>بيزحزح اللي بعده لليسار</td>
+</tr>
+<tr>
+<td><code>Remove(x)</code></td>
+<td><bdi dir="ltr">O(n)</bdi></td>
+<td>بحث (<code>IndexOf</code>) + زحزحة</td>
+</tr>
+<tr>
+<td><code>Contains(x)</code> / <code>IndexOf(x)</code></td>
+<td><bdi dir="ltr">O(n)</bdi></td>
+<td>Linear Search ومقارنة بـ <code>Equals</code></td>
+</tr>
+<tr>
+<td><code>Find</code> / <code>FindAll</code> / <code>Exists</code></td>
+<td><bdi dir="ltr">O(n)</bdi></td>
+<td>Linear بـ Predicate</td>
+</tr>
+<tr>
+<td><code>Sort()</code></td>
+<td><bdi dir="ltr">O(n log n)</bdi></td>
+<td>Introsort، غير مستقر (Unstable)</td>
+</tr>
+<tr>
+<td><code>BinarySearch</code></td>
+<td><bdi dir="ltr">O(log n)</bdi></td>
+<td><strong>يشترط</strong> القائمة مرتبة بنفس الـ Comparer</td>
+</tr>
+<tr>
+<td><code>Reverse()</code></td>
+<td><bdi dir="ltr">O(n)</bdi></td>
+<td>بيعدّل القائمة نفسها (in-place)</td>
+</tr>
+<tr>
+<td><code>ToArray()</code> / <code>GetRange</code></td>
+<td><bdi dir="ltr">O(n)</bdi></td>
+<td>نسخ</td>
+</tr>
+</tbody>
+</table></div>
+<h3>الكود الأساسي بالتطبيق</h3>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;Ahmed&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Sara&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Omar&quot;</span><span class="w"> </span><span class="p">};</span>
+
+<span class="n">names</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="s">&quot;Mona&quot;</span><span class="p">);</span><span class="w">                       </span><span class="c1">// ... Ahmed, Sara, Omar, Mona</span>
+<span class="n">names</span><span class="p">.</span><span class="n">AddRange</span><span class="p">(</span><span class="k">new</span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;Ali&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Hana&quot;</span><span class="w"> </span><span class="p">});</span><span class="w">  </span><span class="c1">// إضافة مجموعة</span>
+<span class="n">names</span><span class="p">.</span><span class="n">Insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Youssef&quot;</span><span class="p">);</span><span class="w">              </span><span class="c1">// يزحزح الباقي</span>
+<span class="n">names</span><span class="p">.</span><span class="n">Remove</span><span class="p">(</span><span class="s">&quot;Omar&quot;</span><span class="p">);</span><span class="w">                    </span><span class="c1">// أول تطابق فقط، ويرجّع bool</span>
+<span class="n">names</span><span class="p">.</span><span class="n">RemoveAt</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">                       </span><span class="c1">// حذف بالـ index</span>
+<span class="n">names</span><span class="p">.</span><span class="n">RemoveAll</span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">n</span><span class="p">.</span><span class="n">StartsWith</span><span class="p">(</span><span class="s">&quot;S&quot;</span><span class="p">));</span><span class="w"> </span><span class="c1">// حذف بشرط، ويرجّع عدد المحذوف</span>
+
+<span class="kt">bool</span><span class="w"> </span><span class="n">has</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">names</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="s">&quot;Mona&quot;</span><span class="p">);</span><span class="w">       </span><span class="c1">// O(n)</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">names</span><span class="p">.</span><span class="n">IndexOf</span><span class="p">(</span><span class="s">&quot;Mona&quot;</span><span class="p">);</span><span class="w">         </span><span class="c1">// -1 لو مش موجود</span>
+<span class="kt">string?</span><span class="w"> </span><span class="n">first</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">names</span><span class="p">.</span><span class="n">Find</span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">n</span><span class="p">.</span><span class="n">Length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span><span class="w">       </span><span class="c1">// null (default) لو مفيش</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">all</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">names</span><span class="p">.</span><span class="n">FindAll</span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">n</span><span class="p">.</span><span class="n">Length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">any</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">names</span><span class="p">.</span><span class="n">Exists</span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;Ali&quot;</span><span class="p">);</span>
+
+<span class="n">names</span><span class="p">.</span><span class="n">Sort</span><span class="p">();</span><span class="w">                </span><span class="c1">// ترتيب افتراضي (IComparable)</span>
+<span class="n">names</span><span class="p">.</span><span class="n">Reverse</span><span class="p">();</span>
+<span class="kt">string</span><span class="p">[]</span><span class="w"> </span><span class="n">arr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">names</span><span class="p">.</span><span class="n">ToArray</span><span class="p">();</span>
+</code></pre></div>
+
+<h2 id="s6">6. أخطاء حقيقية بتحصل في الإنتاج</h2>
+<h3>الخطأ 1: <code>Contains</code> / <code>Remove</code> على كائنات بدون Equals</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Product</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="p">;</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="kt">var</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Laptop&quot;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">};</span>
+
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">products</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">}));</span><span class="w"> </span><span class="c1">// False!</span>
+</code></pre></div>
+
+<p><strong>ليه؟</strong> <code>Contains</code> بتستخدم <code>EqualityComparer&lt;T&gt;.Default</code>. للـ reference types من غير override لـ <code>Equals</code> بتقارن <strong>الـ reference</strong> (هل هما نفس الـ object؟) مش المحتوى. الحلول:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// 1) Record: بيعمل Equals و GetHashCode بالقيمة تلقائياً</span>
+<span class="k">record</span><span class="w"> </span><span class="nf">Product</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="p">);</span>
+
+<span class="c1">// 2) Predicate صريح (الأوضح في الغالب)</span>
+<span class="n">products</span><span class="p">.</span><span class="n">Exists</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+</code></pre></div>
+
+<p>ملاحظة: للـ <code>string</code> و <code>int</code> و <code>struct</code> المقارنة بالقيمة، فبتحس إن الأمور تمام وبعدين بتتفاجئ مع الـ classes.</p>
+<h3>الخطأ 2: النسخ السطحي (Shallow Copy)</h3>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;A&quot;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">};</span>
+
+<span class="kt">var</span><span class="w"> </span><span class="k">alias</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">;</span><span class="w">                      </span><span class="c1">// نفس القائمة بالظبط (reference واحد)</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">copy</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a</span><span class="p">);</span><span class="w">   </span><span class="c1">// قائمة جديدة، لكن نفس العناصر</span>
+
+<span class="n">copy</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Changed&quot;</span><span class="p">;</span><span class="w">           </span><span class="c1">// a[0].Name بقى &quot;Changed&quot; كمان!</span>
+<span class="n">copy</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">});</span><span class="w">   </span><span class="c1">// a مش اتأثرت (قائمة مختلفة)</span>
+</code></pre></div>
+
+<p>الـ copy constructor ينسخ <strong>المراجع</strong> مش الـ objects. لو عايز Deep Copy لازم تنسخ كل عنصر بنفسك (أو تستخدم Records مع <code>with</code> والـ immutability).</p>
+<h3>الخطأ 3: Struct داخل List وتعديل العنصر</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">Point</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">X</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="kt">var</span><span class="w"> </span><span class="n">pts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Point</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Point</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">};</span>
+<span class="c1">// pts[0].X = 5;   // Error CS1612: Cannot modify the return value of &#39;List&lt;Point&gt;.this[int]&#39;</span>
+</code></pre></div>
+
+<p><strong>ليه؟</strong> الـ indexer بيرجّع <strong>نسخة</strong> من الـ struct (value type) مش reference ليه، فتعديل النسخة ملوش أي معنى، والـ Compiler منعك عشان ماتفتكرش إنك عدّلت الأصل. الحلول:</p>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">X</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"> </span><span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">;</span><span class="w">                   </span><span class="c1">// نسخ ثم إعادة كتابة</span>
+<span class="n">System</span><span class="p">.</span><span class="n">Runtime</span><span class="p">.</span><span class="n">InteropServices</span><span class="p">.</span><span class="n">CollectionsMarshal</span><span class="p">.</span><span class="n">AsSpan</span><span class="p">(</span><span class="n">pts</span><span class="p">)[</span><span class="mi">0</span><span class="p">].</span><span class="n">X</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"> </span><span class="c1">// تعديل في المكان (.NET 5+)</span>
+</code></pre></div>
+
+<h3>الخطأ 4: Comparer خاطئ في Sort</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">nums</span><span class="p">.</span><span class="n">Sort</span><span class="p">((</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">b</span><span class="p">);</span><span class="w">   </span><span class="c1">// خطأ خفي: overflow لو a = int.MaxValue و b سالب</span>
+<span class="n">nums</span><span class="p">.</span><span class="n">Sort</span><span class="p">((</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">CompareTo</span><span class="p">(</span><span class="n">b</span><span class="p">));</span><span class="w"> </span><span class="c1">// الصح</span>
+</code></pre></div>
+
+<p>ولو الـ Comparer متناقض (inconsistent) ممكن <code>Sort</code> يرمي <code>InvalidOperationException</code>. كمان <code>Sort</code> <strong>غير مستقر</strong> (العناصر المتساوية ممكن تتبدل ترتيبها). لو محتاج Stable استخدم LINQ <code>OrderBy(...).ToList()</code> (مستقر لكن بيعمل قائمة جديدة).</p>
+<h3>الخطأ 5: List.Contains جوه loop (<bdi dir="ltr">O(n²)</bdi>)</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// 10,000 × 10,000 = 100 مليون مقارنة</span>
+<span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">requestedIds</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">existingIds</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">id</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// الحل: HashSet (هنشرحه في الجزء 2)</span>
+<span class="kt">var</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashSet</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">existingIds</span><span class="p">);</span>
+<span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">requestedIds</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">set</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">id</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c1">// O(1) متوسط</span>
+</code></pre></div>
+
+<h3>الخطأ 6: List مش Thread-Safe</h3>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="n">Parallel</span><span class="p">.</span><span class="n">For</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="n">_000</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">list</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">i</span><span class="p">));</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">list</span><span class="p">.</span><span class="n">Count</span><span class="p">);</span><span class="w">   </span><span class="c1">// غالباً أقل من 100000، أو Exception</span>
+</code></pre></div>
+
+<p><strong>ليه؟</strong> <code>Add</code> مكونة من خطوات (تأكد من الـ Capacity، اكتب في <code>_items[_size]</code>، زوّد <code>_size</code>) مش Atomic. ثريدين ممكن يكتبوا في نفس الخانة فتضيع عناصر، أو يحصل Resize في نفس الوقت. الحلول: <code>lock</code>، أو <code>ConcurrentBag&lt;T&gt;</code> / <code>ConcurrentQueue&lt;T&gt;</code>، أو Immutable collections، أو الأفضل تجمع نتائج كل ثريد لوحده وتدمجهم.</p>
+<h2 id="s7">7. ملاحظات تصميم الـ API</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>سيناريو</th>
+<th>الاختيار</th>
+<th>ليه</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Return من Method</td>
+<td><code>IReadOnlyList&lt;T&gt;</code> أو <code>IEnumerable&lt;T&gt;</code></td>
+<td>منع التعديل الخارجي</td>
+</tr>
+<tr>
+<td>Parameter</td>
+<td><code>IEnumerable&lt;T&gt;</code> لو loop واحد</td>
+<td>مرونة، يقبل Array و List و LINQ</td>
+</tr>
+<tr>
+<td>EF Core Navigation</td>
+<td><code>ICollection&lt;T&gt;</code> (أو <code>List&lt;T&gt;</code>)</td>
+<td>EF محتاج <code>Add</code>/<code>Remove</code></td>
+</tr>
+<tr>
+<td>Public API قابلة للتوسع</td>
+<td><code>Collection&lt;T&gt;</code></td>
+<td>فيها virtual hooks (InsertItem / RemoveItem)</td>
+</tr>
+<tr>
+<td>كلاس داخلي (private)</td>
+<td><code>List&lt;T&gt;</code> مباشرة</td>
+<td>أسرع وأبسط</td>
+</tr>
+</tbody>
+</table></div>
+<p class="note info"><strong>Trade-off:</strong> <code>List&lt;T&gt;</code> كـ Return في Public API بيعمل Coupling على تنفيذ معين وبيسمح للمستخدم يعدّل الحالة الداخلية. دي نقطة مهمة في Libraries، أما في Application Code داخلي فمش لازم تبالغ.</p>
+<h2 id="s8">8. بناء الجملة الحديث (C# 12 / .NET 8)</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">];</span><span class="w">       </span><span class="c1">// Collection Expression</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[..</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">];</span><span class="w">    </span><span class="c1">// Spread: ينسخ a ويضيف عليها</span>
+<span class="kt">int</span><span class="p">[]</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[..</span><span class="w"> </span><span class="n">b</span><span class="p">];</span>
+</code></pre></div>
+
+<h2 id="s9">9. أسئلة وإجابات (اختبر نفسك)</h2>
+<p class="qa-hint">اضغط على أي سؤال لتظهر إجابته. جرّب تجاوب في دماغك الأول.</p>
+
+<details class="qa">
+<summary>س1: القائمة <code>new List&lt;int&gt;(100)</code> فيها كام عنصر؟ وإيه اللي يحصل لو كتبت <code>list[0] = 5</code>؟</summary>
+<div class="qa-body">
+<p>ج: <code>Count = 0</code> و<code>Capacity = 100</code>. الـ <code>list[0] = 5</code> هترمي <code>ArgumentOutOfRangeException</code> لأن الـ indexer بيتحقق من <code>Count</code> مش من <code>Capacity</code>. لازم <code>Add</code> الأول.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س2: ليه <code>Add</code> بتوصف بـ "Amortized <bdi dir="ltr">O(1)</bdi>" مش "<bdi dir="ltr">O(1)</bdi>" بس؟</summary>
+<div class="qa-body">
+<p>ج: لأن معظم الـ Add بتكتب في خانة فاضية (<bdi dir="ltr">O(1)</bdi>)، لكن لما الـ Array تمتلي بيحصل Resize + نسخ كل العناصر (<bdi dir="ltr">O(n)</bdi>). بسبب التضاعف، الـ Resize نادر، فمتوسط التكلفة لكل Add يفضل ثابت.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س3: إيه الفرق بين <code>var b = a;</code> و<code>var b = new List&lt;T&gt;(a);</code>؟</summary>
+<div class="qa-body">
+<p>ج: الأولى بتنسخ الـ reference فيبقى في قائمة واحدة باسمين. التانية بتعمل قائمة جديدة بنفس العناصر (Shallow Copy): إضافة/حذف في واحدة لا يؤثر في التانية، لكن تعديل خصائص object مشترك (لو class) بيظهر في الاتنين.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س4: ليه <code>foreach</code> بيرمي Exception لو عدّلت القائمة جواه؟ وإزاي تحذف بأمان؟</summary>
+<div class="qa-body">
+<p>ج: بسبب الـ <code>_version</code> اللي بيتقارن في <code>MoveNext</code>. الحذف الأمن: <code>RemoveAll(predicate)</code> أو loop عكسي أو بناء قائمة جديدة بـ LINQ.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س5: عندك 5000 عنصر بتعمل عليهم <code>Remove</code> من الأول بشكل متكرر. إيه المشكلة؟</summary>
+<div class="qa-body">
+<p>ج: كل <code>RemoveAt(0)</code> بيزحزح باقي العناصر (<bdi dir="ltr">O(n)</bdi>) فالمجموع <bdi dir="ltr">O(n²)</bdi>. لو الاستخدام FIFO استخدم <code>Queue&lt;T&gt;</code> (الجزء 3). ولو محتاج حذف كتير في النص، فكّر في <code>LinkedList&lt;T&gt;</code> (مع تحفظات) أو هيكل مختلف.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س6: <code>products.Contains(new Product { Id = 1 })</code> بترجّع false رغم وجود Id = 1. ليه؟</summary>
+<div class="qa-body">
+<p>ج: الـ class من غير <code>Equals</code> مخصص بيقارن بالمرجع. الحل: Record، أو override لـ <code>Equals</code>/<code>GetHashCode</code>، أو <code>Exists(p =&gt; p.Id == 1)</code>.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س7: ليه <code>pts[0].X = 5</code> ممنوعة لما <code>Point</code> تكون struct؟</summary>
+<div class="qa-body">
+<p>ج: الـ indexer بيرجّع نسخة، فالتعديل هيضيع. الـ Compiler بيمنع الخطأ ده بـ CS1612.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س8: متى <code>List&lt;T&gt;</code> تبقى اختيار سيئ؟</summary>
+<div class="qa-body">
+<p>ج: (1) بحث متكرر بالقيمة ← <code>HashSet</code>/<code>Dictionary</code>. (2) إدخال/حذف كتير من الأول ← <code>Queue</code>/<code>LinkedList</code>. (3) وصول من ثريدات ← Concurrent أو Immutable. (4) عايز ترتيب دائم مع إدخال ← <code>SortedSet</code>/<code>SortedList</code>.</p>
+</div>
+</details>
+<h2 id="s10">10. ملاحظة سينيور إضافية</h2>
+<ul>
+<li><strong><code>Span&lt;T&gt;</code> و<code>CollectionsMarshal.AsSpan(list)</code>:</strong> بتديك وصول مباشر للـ Array الداخلية بدون نسخ ولا Allocation، مفيدة في الـ Hot Paths، لكن لو عدّلت حجم القائمة (Add) وانت ماسك الـ Span، الـ Span هتفضل تشاور على الـ Array القديمة، وده Bug صامت.</li>
+<li><strong>تكلفة LINQ:</strong> <code>list.Where(...).ToList()</code> على قائمة ضخمة بتعمل Allocation وبتتأخر بسبب delegates؛ في الكود الحساس فكّر في loop عادي.</li>
+<li><strong>تحب نتعمق في:</strong> (أ) الـ Introsort وليه <code>Sort</code> غير مستقر، (ب) الـ Deferred Execution في LINQ، (ج) <code>Span&lt;T&gt;</code>. قولي أي واحدة تحبها.</li>
+</ul>
+    </article>
+    <div class="pager">
+<a class="pn next" href="session03-part2-dictionary-hashset.html"><small>التالي</small>Dictionary و HashSet</a>
+<span></span>
+    </div>
+  </main>
+</div>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('#toc a'));
+  var heads=links.map(function(a){return document.getElementById(a.getAttribute('href').slice(1));}).filter(Boolean);
+  function setActive(id){links.forEach(function(a){if(a.getAttribute('href')==='#'+id)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current');});}
+  if('IntersectionObserver' in window&&heads.length){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)setActive(e.target.id);});},{rootMargin:'-80px 0px -70% 0px'});
+    heads.forEach(function(h){io.observe(h);});
+    setActive(heads[0].id);
+  }
+  document.querySelectorAll('div.codehilite').forEach(function(box){
+    var b=document.createElement('button');b.type='button';b.className='copy';b.textContent='نسخ';
+    b.addEventListener('click',function(){
+      var t=box.querySelector('pre').innerText;
+      function done(){b.textContent='تم النسخ';setTimeout(function(){b.textContent='نسخ';},1500);}
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){});}
+      else{var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(ta);}
+    });
+    box.appendChild(b);
+  });
+})();
+
+</script>
+</body>
+</html>

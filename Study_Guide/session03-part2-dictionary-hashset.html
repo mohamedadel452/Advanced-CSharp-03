@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session 03 – الجزء 2: Dictionary و HashSet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ECF1F4; --surface:#fff; --ink:#16212B; --muted:#526170; --line:#D3DDE4;
+  --accent:#0B6B76; --accent-soft:#DCEFF1; --warn:#A3304B; --warn-soft:#F8E5E9;
+  --code-bg:#0F1A26; --inline-bg:#E3EAEF;
+  --font:"IBM Plex Sans Arabic","Segoe UI",Tahoma,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Consolas,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C141B; --surface:#131E28; --ink:#E4ECF2; --muted:#93A3B2; --line:#243442;
+    --accent:#55C2CC; --accent-soft:#14323A; --warn:#F08AA0; --warn-soft:#35202A;
+    --code-bg:#08101A; --inline-bg:#1B2A37; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C141B; --surface:#131E28; --ink:#E4ECF2; --muted:#93A3B2; --line:#243442;
+  --accent:#55C2CC; --accent-soft:#14323A; --warn:#F08AA0; --warn-soft:#35202A;
+  --code-bg:#08101A; --inline-bg:#1B2A37; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.95;-webkit-text-size-adjust:100%}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+.top{position:sticky;top:0;z-index:10;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{max-width:1180px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:24px;min-height:56px}
+.brand{font-weight:700;white-space:nowrap}
+.parts{display:flex;gap:4px;overflow-x:auto;margin-inline-start:auto}
+.parts a{display:flex;flex-direction:column;line-height:1.35;padding:8px 14px;text-decoration:none;color:var(--muted);font-size:14px;white-space:nowrap;border-bottom:3px solid transparent}
+.parts a span{font-size:12px;opacity:.85}
+.parts a:hover{color:var(--ink)}
+.parts a[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent);font-weight:500}
+
+.layout{max-width:1180px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:230px minmax(0,1fr);gap:48px}
+.side{position:sticky;top:72px;align-self:start;max-height:calc(100vh - 90px);overflow:auto;padding:36px 0}
+.side-t{margin:0 0 10px;font-size:13px;color:var(--muted);font-weight:500}
+#toc{list-style:none;margin:0;padding:0;border-inline-start:2px solid var(--line)}
+#toc a{display:block;padding:5px 14px;margin-inline-start:-2px;border-inline-start:2px solid transparent;color:var(--muted);text-decoration:none;font-size:14px;line-height:1.55}
+#toc a:hover{color:var(--ink)}
+#toc a[aria-current="true"]{color:var(--accent);border-inline-start-color:var(--accent);font-weight:500}
+
+main{min-width:0;max-width:780px;padding:40px 0 72px}
+.hero{padding-bottom:24px;margin-bottom:8px;border-bottom:1px solid var(--line)}
+.part-l{margin:0 0 6px;color:var(--accent);font-weight:500;font-size:15px}
+h1{font-size:clamp(1.9rem,4.2vw,2.7rem);line-height:1.35;margin:0 0 12px;font-weight:700;direction:rtl}
+.lead{margin:0;color:var(--muted);font-size:1.08rem}
+h2{font-size:1.6rem;line-height:1.5;margin:3.2rem 0 .6rem;font-weight:700}
+h3{font-size:1.2rem;line-height:1.6;margin:2.2rem 0 .3rem;color:var(--accent);font-weight:700}
+p{margin:.9rem 0}
+ul,ol{padding-inline-start:1.5em;margin:.9rem 0}
+li{margin:.3rem 0}
+strong{font-weight:700}
+code{font-family:var(--mono);font-size:.86em;background:var(--inline-bg);padding:.12em .4em;border-radius:5px;direction:ltr;unicode-bidi:isolate}
+
+div.codehilite{position:relative;background:var(--code-bg);border-radius:10px;margin:1.1rem 0;direction:ltr;text-align:left}
+div.codehilite pre{margin:0;padding:18px 18px 16px;overflow-x:auto;font-family:var(--mono);font-size:13.5px;line-height:1.7;background:none;tab-size:4}
+div.codehilite code{background:none;padding:0;font-size:inherit;border-radius:0;direction:ltr;unicode-bidi:plaintext}
+.copy{position:absolute;top:8px;right:8px;font:500 12px var(--font);color:#C9D6E2;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:6px;padding:3px 10px;cursor:pointer}
+.copy:hover{background:rgba(255,255,255,.16)}
+
+.tw{overflow-x:auto;margin:1.2rem 0;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:15px;line-height:1.7}
+th,td{padding:10px 14px;text-align:start;vertical-align:top;border-bottom:1px solid var(--line)}
+th{background:var(--accent-soft);font-weight:700;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td code{white-space:nowrap}
+
+p.note{padding:14px 18px;border-inline-start:4px solid var(--accent);background:var(--accent-soft);border-radius:8px}
+p.note.warn{border-inline-start-color:var(--warn);background:var(--warn-soft)}
+p.note.warn>strong:first-child{color:var(--warn)}
+
+.qa-hint{color:var(--muted);font-size:15px;margin-bottom:1rem}
+details.qa{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin:10px 0}
+details.qa[open]{border-color:var(--accent)}
+details.qa>summary{list-style:none;cursor:pointer;padding:14px 18px 14px 46px;font-weight:700;position:relative;line-height:1.75}
+details.qa>summary::-webkit-details-marker{display:none}
+details.qa>summary::before{content:"+";position:absolute;inset-inline-end:auto;left:16px;top:12px;width:22px;height:22px;line-height:20px;text-align:center;border:1.5px solid var(--accent);border-radius:50%;color:var(--accent);font-weight:500}
+details.qa[open]>summary::before{content:"−"}
+.qa-body{padding:2px 18px 12px;border-top:1px dashed var(--line)}
+.qa-body p:first-child{margin-top:.8rem}
+
+.pager{display:flex;gap:16px;margin-top:4rem}
+.pn{flex:1;display:block;padding:14px 18px;border:1px solid var(--line);border-radius:10px;background:var(--surface);text-decoration:none;color:var(--ink);font-weight:500;line-height:1.6}
+.pn small{display:block;color:var(--muted);font-weight:400}
+.pn:hover{border-color:var(--accent)}
+.pn.next{text-align:start}
+
+@media (max-width:900px){
+  .layout{grid-template-columns:minmax(0,1fr);gap:0}
+  .side{display:none}
+  .brand{display:none}
+  .parts{margin-inline-start:0}
+  body{font-size:16.5px}
+  main{padding-top:28px}
+}
+@media print{.top,.side,.pager,.copy{display:none}details.qa>*{display:block}body{background:#fff}}
+
+pre { line-height: 125%; }
+td.linenos .normal { color: #6e7681; background-color: #0d1117; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #6e7681; background-color: #0d1117; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #e6edf3; background-color: #6e7681; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #e6edf3; background-color: #6e7681; padding-left: 5px; padding-right: 5px; }
+
+
+.codehilite .c { color: #8B949E; font-style: italic } /* Comment */
+.codehilite .err { color: #F85149 } /* Error */
+.codehilite .esc { color: #E6EDF3 } /* Escape */
+.codehilite .g { color: #E6EDF3 } /* Generic */
+.codehilite .k { color: #FF7B72 } /* Keyword */
+.codehilite .l { color: #A5D6FF } /* Literal */
+.codehilite .n { color: #E6EDF3 } /* Name */
+.codehilite .o { color: #FF7B72; font-weight: bold } /* Operator */
+.codehilite .x { color: #E6EDF3 } /* Other */
+.codehilite .p { color: #E6EDF3 } /* Punctuation */
+.codehilite .ch { color: #8B949E; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #8B949E; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #8B949E; font-weight: bold; font-style: italic } /* Comment.Preproc */
+.codehilite .cpf { color: #8B949E; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #8B949E; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #8B949E; font-weight: bold; font-style: italic } /* Comment.Special */
+.codehilite .gd { color: #FFA198; background-color: #490202 } /* Generic.Deleted */
+.codehilite .ge { color: #E6EDF3; font-style: italic } /* Generic.Emph */
+.codehilite .ges { color: #E6EDF3; font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #FFA198 } /* Generic.Error */
+.codehilite .gh { color: #79C0FF; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #56D364; background-color: #0F5323 } /* Generic.Inserted */
+.codehilite .go { color: #8B949E } /* Generic.Output */
+.codehilite .gp { color: #8B949E } /* Generic.Prompt */
+.codehilite .gs { color: #E6EDF3; font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #79C0FF } /* Generic.Subheading */
+.codehilite .gt { color: #FF7B72 } /* Generic.Traceback */
+.codehilite .g-Underline { color: #E6EDF3; text-decoration: underline } /* Generic.Underline */
+.codehilite .kc { color: #79C0FF } /* Keyword.Constant */
+.codehilite .kd { color: #FF7B72 } /* Keyword.Declaration */
+.codehilite .kn { color: #FF7B72 } /* Keyword.Namespace */
+.codehilite .kp { color: #79C0FF } /* Keyword.Pseudo */
+.codehilite .kr { color: #FF7B72 } /* Keyword.Reserved */
+.codehilite .kt { color: #FF7B72 } /* Keyword.Type */
+.codehilite .ld { color: #79C0FF } /* Literal.Date */
+.codehilite .m { color: #A5D6FF } /* Literal.Number */
+.codehilite .s { color: #A5D6FF } /* Literal.String */
+.codehilite .na { color: #E6EDF3 } /* Name.Attribute */
+.codehilite .nb { color: #E6EDF3 } /* Name.Builtin */
+.codehilite .nc { color: #F0883E; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #79C0FF; font-weight: bold } /* Name.Constant */
+.codehilite .nd { color: #D2A8FF; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #FFA657 } /* Name.Entity */
+.codehilite .ne { color: #F0883E; font-weight: bold } /* Name.Exception */
+.codehilite .nf { color: #D2A8FF; font-weight: bold } /* Name.Function */
+.codehilite .nl { color: #79C0FF; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #FF7B72 } /* Name.Namespace */
+.codehilite .nx { color: #E6EDF3 } /* Name.Other */
+.codehilite .py { color: #79C0FF } /* Name.Property */
+.codehilite .nt { color: #7EE787 } /* Name.Tag */
+.codehilite .nv { color: #79C0FF } /* Name.Variable */
+.codehilite .ow { color: #FF7B72; font-weight: bold } /* Operator.Word */
+.codehilite .pm { color: #E6EDF3 } /* Punctuation.Marker */
+.codehilite .w { color: #6E7681 } /* Text.Whitespace */
+.codehilite .mb { color: #A5D6FF } /* Literal.Number.Bin */
+.codehilite .mf { color: #A5D6FF } /* Literal.Number.Float */
+.codehilite .mh { color: #A5D6FF } /* Literal.Number.Hex */
+.codehilite .mi { color: #A5D6FF } /* Literal.Number.Integer */
+.codehilite .mo { color: #A5D6FF } /* Literal.Number.Oct */
+.codehilite .sa { color: #79C0FF } /* Literal.String.Affix */
+.codehilite .sb { color: #A5D6FF } /* Literal.String.Backtick */
+.codehilite .sc { color: #A5D6FF } /* Literal.String.Char */
+.codehilite .dl { color: #79C0FF } /* Literal.String.Delimiter */
+.codehilite .sd { color: #A5D6FF } /* Literal.String.Doc */
+.codehilite .s2 { color: #A5D6FF } /* Literal.String.Double */
+.codehilite .se { color: #79C0FF } /* Literal.String.Escape */
+.codehilite .sh { color: #79C0FF } /* Literal.String.Heredoc */
+.codehilite .si { color: #A5D6FF } /* Literal.String.Interpol */
+.codehilite .sx { color: #A5D6FF } /* Literal.String.Other */
+.codehilite .sr { color: #79C0FF } /* Literal.String.Regex */
+.codehilite .s1 { color: #A5D6FF } /* Literal.String.Single */
+.codehilite .ss { color: #A5D6FF } /* Literal.String.Symbol */
+.codehilite .bp { color: #E6EDF3 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #D2A8FF; font-weight: bold } /* Name.Function.Magic */
+.codehilite .vc { color: #79C0FF } /* Name.Variable.Class */
+.codehilite .vg { color: #79C0FF } /* Name.Variable.Global */
+.codehilite .vi { color: #79C0FF } /* Name.Variable.Instance */
+.codehilite .vm { color: #79C0FF } /* Name.Variable.Magic */
+.codehilite .il { color: #A5D6FF } /* Literal.Number.Integer.Long */
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">Session 03 · Collections</div>
+    <nav class="parts" aria-label="أجزاء السيشن">
+<a href="session03-part1-collections-list.html"><span>الجزء 1</span>مقدمة Collections و <bdi dir="ltr">List&lt;T&gt;</bdi></a>
+<a href="session03-part2-dictionary-hashset.html" aria-current="page"><span>الجزء 2</span>Dictionary و HashSet</a>
+<a href="session03-part3-queue-stack.html"><span>الجزء 3</span>Queue و Stack والخلاصة</a>
+    </nav>
+  </div>
+</header>
+<div class="layout">
+  <aside class="side">
+    <p class="side-t">في الصفحة دي</p>
+    <ol id="toc">
+<li><a href="#s1">1. الفكرة: ليه محتاجين Hash Table؟</a></li>
+<li><a href="#s2">2. Dictionary من جوه (الميكانيزم الحقيقي)</a></li>
+<li><a href="#s3">3. عقد GetHashCode و Equals</a></li>
+<li><a href="#s4">4. العمليات الأساسية (Common Operations)</a></li>
+<li><a href="#s5">5. أنماط استخدام حقيقية</a></li>
+<li><a href="#s6">6. مقارنة الـ Dictionaries</a></li>
+<li><a href="#s7">7. <bdi dir="ltr">HashSet&lt;T&gt;</bdi></a></li>
+<li><a href="#s8">8. أسئلة وإجابات (اختبر نفسك)</a></li>
+<li><a href="#s9">9. ملاحظة سينيور إضافية</a></li>
+    </ol>
+  </aside>
+  <main>
+    <div class="hero">
+      <p class="part-l">الجزء 2 من 3</p>
+      <h1><bdi dir="ltr">Dictionary&lt;TKey, TValue&gt;</bdi> و <bdi dir="ltr">HashSet&lt;T&gt;</bdi></h1>
+      <p class="lead">شرح سينيور لطالب Backend .NET: هنفهم الـ Hashing من الصفر، وإزاي البحث بقى سريع، وإيه الأخطاء اللي بتكلّف في الإنتاج.</p>
+    </div>
+    <article>
+
+<h2 id="s1">1. الفكرة: ليه محتاجين Hash Table؟</h2>
+<p>لو عندك قائمة فيها مليون مستخدم وعايز تلاقي مستخدم بالـ Id، الـ <code>List&lt;T&gt;</code> هتلف على العناصر واحد واحد (<bdi dir="ltr">O(n)</bdi>). الفكرة الذكية: بدل ما تبحث، <strong>حوّل الـ Key نفسه لرقم (Hash Code) واستخدم الرقم ده كـ index في Array</strong> وروح مباشرة للمكان. النتيجة: بحث بمتوسط <bdi dir="ltr">O(1)</bdi> بدل <bdi dir="ltr">O(n)</bdi>.</p>
+<p>لكن مشكلتين لازم التصميم يحلهم:</p>
+<ol>
+<li>الـ Hash Code ممكن يكون رقم ضخم (مليارات)، فالـ Array لازم تكون صغيرة ← نأخذ باقي القسمة (modulo) على حجم الـ Array.</li>
+<li>مفاتيح مختلفة ممكن تعطي نفس الـ index (<strong>Collision</strong>) ← لازم طريقة لتخزين أكتر من عنصر في نفس المكان. الـ Collision مش عيب، هو <strong>حتمية رياضية</strong> (Pigeonhole Principle): لو عندك مفاتيح أكتر من الخانات هتتكرر خانات.</li>
+</ol>
+<h2 id="s2">2. Dictionary من جوه (الميكانيزم الحقيقي)</h2>
+<p>التنفيذ في .NET مبني على مصفوفتين (مبسط):</p>
+<div class="codehilite"><pre><span></span><code><span class="k">private</span><span class="w"> </span><span class="kt">int</span><span class="p">[]</span><span class="w">   </span><span class="n">_buckets</span><span class="p">;</span><span class="w">   </span><span class="c1">// كل خانة بتشاور على أول Entry في الـ chain (index+1 ، و 0 يعني فاضية)</span>
+<span class="k">private</span><span class="w"> </span><span class="n">Entry</span><span class="p">[]</span><span class="w"> </span><span class="n">_entries</span><span class="p">;</span><span class="w">   </span><span class="c1">// العناصر نفسها</span>
+
+<span class="k">private</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">Entry</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">uint</span><span class="w">   </span><span class="n">hashCode</span><span class="p">;</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w">    </span><span class="n">next</span><span class="p">;</span><span class="w">     </span><span class="c1">// index الـ Entry التالية في نفس الـ chain (مش object منفصل)</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">TKey</span><span class="w">   </span><span class="n">key</span><span class="p">;</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">TValue</span><span class="w"> </span><span class="k">value</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>البحث خطوة خطوة (<code>dict[key]</code>)</h3>
+<ol>
+<li>حساب <code>hash = comparer.GetHashCode(key)</code>.</li>
+<li><code>bucket = hash % _buckets.Length</code>.</li>
+<li>الدخول على أول Entry في الـ bucket والمشي على <code>next</code>.</li>
+<li>لكل Entry: قارن الـ <code>hashCode</code> أولاً (رخيصة)، ولو اتطابق قارن <code>Equals(key)</code>.</li>
+<li>لقيتها ← رجّع الـ value. انتهت الـ chain من غير تطابق ← غير موجود.</li>
+</ol>
+<p class="note info"><strong>الملاحظة المهمة:</strong> تكلفة البحث = حساب الـ Hash + طول الـ chain. لو الـ Hash موزّع كويس الـ chain فيها عنصر أو اتنين ← <bdi dir="ltr">O(1)</bdi>. لو كل المفاتيح لها نفس الـ Hash ← الـ chain بتبقى كل العناصر ← <strong><bdi dir="ltr">O(n)</bdi></strong>.</p>
+<h3>النمو (Resize)</h3>
+<ul>
+<li>أول <code>Add</code> بيحجز حجم صغير (3 خانات).</li>
+<li>لما الـ <code>_entries</code> تمتلي، الحجم بيتضاعف تقريباً لأقرب <strong>عدد أولي (Prime)</strong>، وبيحصل <strong>Rehash</strong> لكل العناصر (عشان <code>hash % الحجم الجديد</code> مختلف). عملية غالية <bdi dir="ltr">O(n)</bdi>.</li>
+<li><strong>ليه أعداد أولية؟</strong> لأن الـ modulo بعدد أولي بيقلل التجمّع لو الـ Hash Codes فيها نمط (مثلاً كلها مضاعفات 4).</li>
+<li>لو عارف الحجم مقدماً: <code>new Dictionary&lt;int, string&gt;(capacity: 100_000)</code> لتجنب Resizes متكررة (نفس منطق <code>List&lt;T&gt;</code>).</li>
+</ul>
+<h3>الحذف والترتيب</h3>
+<p>لما تعمل <code>Remove</code> الخانة بتتحط في <strong>Free List</strong> وبتتعاد استخدامها مع أول <code>Add</code> جديد. معناها إن ترتيب العناصر عند الـ <code>foreach</code> ممكن يكون هو ترتيب الإدخال في المعتاد، لكن بعد أي حذف بيتغير.</p>
+<h3>مفاهيم خاطئة شائعة</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>المفهوم الخاطئ</th>
+<th>الحقيقة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"البحث في Dictionary دايماً <bdi dir="ltr">O(1)</bdi>"</td>
+<td><bdi dir="ltr">O(1)</bdi> <strong>بمتوسط الحالة</strong> بشرط Hash جيد. الأسوأ <bdi dir="ltr">O(n)</bdi>. كمان حساب Hash لـ string طويل نفسه O(طول النص).</td>
+</tr>
+<tr>
+<td>"Dictionary مرتبة بترتيب الإدخال"</td>
+<td>مش مضمون في التوثيق. غالباً بتشتغل كده من غير حذف، لكن متعتمدش عليها.</td>
+</tr>
+<tr>
+<td>"الـ chain متكونة من Linked List objects"</td>
+<td>لأ، الـ chain منظمة بـ indices داخل Array واحدة ← Cache-friendly ومفيش Allocation لكل عنصر.</td>
+</tr>
+<tr>
+<td>"أي نوع ممكن يكون Key من غير مشاكل"</td>
+<td>لازم <code>Equals</code> و <code>GetHashCode</code> متسقين (القسم الجاي).</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="s3">3. عقد <code>GetHashCode</code> و <code>Equals</code></h2>
+<p>الـ Dictionary مابتشوفش محتوى الـ Key مباشرة، هي بتثق في الـ contract ده:</p>
+<ol>
+<li>لو <code>a.Equals(b)</code> ← لازم <code>a.GetHashCode() == b.GetHashCode()</code>.</li>
+<li>الـ Hash Code لنفس الـ object لازم يفضل ثابت طول ما هو داخل الـ Dictionary.</li>
+<li>العكس مش شرط: اتنين مختلفين ممكن يكون لهم نفس الـ Hash (Collision).</li>
+</ol>
+<h3>الخطأ 1: Override لـ Equals من غير GetHashCode</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Point</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="n">Y</span><span class="p">;</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Equals</span><span class="p">(</span><span class="kt">object?</span><span class="w"> </span><span class="n">o</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">Point</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">X</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Y</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Y</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// مفيش GetHashCode ← Warning CS0659</span>
+<span class="p">}</span>
+
+<span class="kt">var</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="n">Point</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="n">d</span><span class="p">[</span><span class="k">new</span><span class="w"> </span><span class="n">Point</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">}]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;A&quot;</span><span class="p">;</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="n">ContainsKey</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Point</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">}));</span><span class="w"> </span><span class="c1">// False غالباً!</span>
+</code></pre></div>
+
+<p><strong>ليه؟</strong> الـ <code>GetHashCode</code> الافتراضي مبني على هوية الـ object، فالـ object الجديد هيروح bucket مختلف وماهيقارنش بالـ <code>Equals</code> أصلاً. النتيجة Bug بيظهر كـ "القيمة مش موجودة" رغم إنك مخزّنها.</p>
+<p><strong>الحل (الأحدث والأنظف):</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">record</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nf">Point</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Y</span><span class="p">);</span><span class="w">   </span><span class="c1">// Equals و GetHashCode تلقائيين بالقيمة</span>
+
+<span class="c1">// أو يدوياً:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Point2</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">IEquatable</span><span class="o">&lt;</span><span class="n">Point2</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="n">Y</span><span class="p">;</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Equals</span><span class="p">(</span><span class="n">Point2</span><span class="o">?</span><span class="w"> </span><span class="n">o</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">X</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">Y</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">Y</span><span class="p">;</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Equals</span><span class="p">(</span><span class="kt">object?</span><span class="w"> </span><span class="n">o</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Equals</span><span class="p">(</span><span class="n">o</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">Point2</span><span class="p">);</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">GetHashCode</span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">HashCode</span><span class="p">.</span><span class="n">Combine</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="n">Y</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p class="note info"><strong>نقطة أداء:</strong> لو الـ Key هو <code>struct</code> من غير override لـ <code>Equals</code>، الـ CLR بيستخدم <code>ValueType.Equals</code> اللي ممكن يستخدم Reflection + Boxing ← بطيء جداً. اكتب <code>IEquatable&lt;T&gt;</code> دايماً للـ structs اللي هتستخدمها كـ Keys.</p>
+<h3>الخطأ 2: Key قابل للتعديل (Mutable)</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Key</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="p">;</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Equals</span><span class="p">(</span><span class="kt">object?</span><span class="w"> </span><span class="n">o</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">Key</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">k</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Id</span><span class="p">;</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">GetHashCode</span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Id</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">var</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Key</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">};</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;value&quot;</span><span class="w"> </span><span class="p">};</span>
+
+<span class="n">k</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w">                         </span><span class="c1">// عدّلت الـ Hash بعد التخزين!</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="n">ContainsKey</span><span class="p">(</span><span class="n">k</span><span class="p">));</span><span class="w">  </span><span class="c1">// False</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="n">Count</span><span class="p">);</span><span class="w">           </span><span class="c1">// 1 ← العنصر لسه موجود لكن &quot;ضايع&quot;</span>
+</code></pre></div>
+
+<p>العنصر فضل في الـ bucket القديم لكن البحث هيروح للجديد. النتيجة <strong>Memory Leak بالمعنى الحرفي</strong> وقيم ما تقدرش تحذفها. القاعدة: <strong>الـ Keys يفضلوا Immutable</strong> (string, int, Guid, record, tuple).</p>
+<h3>Tuple/Record كـ Composite Key</h3>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">prices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">Country</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Sku</span><span class="p">),</span><span class="w"> </span><span class="kt">decimal</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="n">prices</span><span class="p">[(</span><span class="s">&quot;EG&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;A100&quot;</span><span class="p">)]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">250m</span><span class="p">;</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">prices</span><span class="p">[(</span><span class="s">&quot;EG&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;A100&quot;</span><span class="p">)]);</span>
+</code></pre></div>
+
+<p>ValueTuple بيعمل Equals/GetHashCode تلقائياً بالقيمة، وبدون Allocation لأنه struct.</p>
+<h3>تنبيهات عن الـ string Keys</h3>
+<ul>
+<li><code>string.GetHashCode()</code> في .NET Core+ متغير لكل Process (Randomized) ← <strong>ما تخزّنوش في DB أو ملف وتتوقع نفس القيمة بعد إعادة التشغيل</strong>. السبب: حماية من هجوم <strong>Hash DoS</strong> (مهاجم يبعت مفاتيح متعمدة لها نفس الـ Hash عشان يحوّل الـ Dictionary لـ <bdi dir="ltr">O(n)</bdi> فيخنق السيرفر).</li>
+<li>الـ <code>Dictionary&lt;string, T&gt;</code> بيبدأ بـ comparer سريع غير عشوائي ولما يلاحظ عدد كبير من الـ Collisions بيتحول لـ Randomized تلقائياً كدفاع.</li>
+<li>المقارنة الافتراضية Case-Sensitive. للـ Case-Insensitive استخدم <code>StringComparer.OrdinalIgnoreCase</code> (مش <code>ToLower()</code> في كل مرة لأنها بتعمل Allocation وتعاني من مشاكل Culture زي Turkish I).</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">headers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="o">&gt;</span><span class="p">(</span><span class="n">StringComparer</span><span class="p">.</span><span class="n">OrdinalIgnoreCase</span><span class="p">);</span>
+<span class="n">headers</span><span class="p">[</span><span class="s">&quot;Content-Type&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;application/json&quot;</span><span class="p">;</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">headers</span><span class="p">[</span><span class="s">&quot;content-type&quot;</span><span class="p">]);</span><span class="w">   </span><span class="c1">// يشتغل</span>
+</code></pre></div>
+
+<h2 id="s4">4. العمليات الأساسية (Common Operations)</h2>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">stock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="n">stock</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="s">&quot;apple&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">);</span><span class="w">        </span><span class="c1">// لو الـ Key موجود ← ArgumentException</span>
+<span class="n">stock</span><span class="p">[</span><span class="s">&quot;banana&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w">           </span><span class="c1">// Upsert: يضيف أو يحدّث (مفيش Exception)</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">added</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stock</span><span class="p">.</span><span class="n">TryAdd</span><span class="p">(</span><span class="s">&quot;apple&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">99</span><span class="p">);</span><span class="w">   </span><span class="c1">// false لأنه موجود، مفيش Exception ولا تغيير</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stock</span><span class="p">[</span><span class="s">&quot;apple&quot;</span><span class="p">];</span><span class="w">                   </span><span class="c1">// لو مش موجود ← KeyNotFoundException</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">stock</span><span class="p">.</span><span class="n">TryGetValue</span><span class="p">(</span><span class="s">&quot;cherry&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">out</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">c</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* موجود */</span><span class="w"> </span><span class="p">}</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">safe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stock</span><span class="p">.</span><span class="n">GetValueOrDefault</span><span class="p">(</span><span class="s">&quot;cherry&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">  </span><span class="c1">// يرجع قيمة افتراضية</span>
+
+<span class="kt">bool</span><span class="w"> </span><span class="n">had</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stock</span><span class="p">.</span><span class="n">Remove</span><span class="p">(</span><span class="s">&quot;banana&quot;</span><span class="p">);</span><span class="w">        </span><span class="c1">// يرجع bool</span>
+<span class="n">stock</span><span class="p">.</span><span class="n">Remove</span><span class="p">(</span><span class="s">&quot;apple&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">out</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">removed</span><span class="p">);</span><span class="w">   </span><span class="c1">// يرجع القيمة المحذوفة كمان</span>
+
+<span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">KeyValuePair</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">kv</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">stock</span><span class="p">)</span>
+<span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$&quot;{kv.Key} = {kv.Value}&quot;</span><span class="p">);</span>
+
+<span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">stock</span><span class="p">.</span><span class="n">Keys</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span><span class="w">       </span><span class="c1">// Keys/Values Views حيّة (مش نسخة)</span>
+</code></pre></div>
+
+<h3>مقارنة: إزاي تجيب قيمة؟</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>الطريقة</th>
+<th>لو الـ Key مش موجود</th>
+<th>عدد مرات حساب الـ Hash</th>
+<th>متى تستخدمها</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dict[key]</code></td>
+<td><code>KeyNotFoundException</code></td>
+<td>1</td>
+<td>لما وجود الـ Key شرط مضمون من المنطق</td>
+</tr>
+<tr>
+<td><code>ContainsKey</code> ثم <code>dict[key]</code></td>
+<td>يتجنب الخطأ</td>
+<td><strong>2</strong> (مرتين)</td>
+<td>تجنبها، هدر أداء</td>
+</tr>
+<tr>
+<td><code>TryGetValue</code></td>
+<td>يرجع false</td>
+<td>1</td>
+<td><strong>الاختيار الأفضل في الغالب</strong></td>
+</tr>
+<tr>
+<td><code>GetValueOrDefault</code></td>
+<td>يرجع default</td>
+<td>1</td>
+<td>لما تكفيك قيمة افتراضية</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>ليه الـ Exception مش الـ null؟</strong> لأن الـ Value ممكن تكون <code>int</code> (مالهاش null)، ولو رجّعت <code>0</code> مش هتعرف هل هي قيمة حقيقية ولا "مش موجود". لذلك الـ <code>TryXxx</code> pattern جاء كتصميم لاسترجاع النتيجة + الحالة معاً.</p>
+<h3>التعديل أثناء الـ foreach</h3>
+<ul>
+<li><code>Add</code> / <code>dict[newKey] = ...</code> أثناء الـ enumeration ← <code>InvalidOperationException</code>.</li>
+<li>من .NET Core 3.0 الـ <code>Remove</code> والـ <code>Clear</code> <strong>مسموحين</strong> أثناء الـ foreach من غير ما يتكسر الـ enumerator (بخلاف الـ List).</li>
+<li><code>ContainsValue</code> بتمشي على كل العناصر ← <strong><bdi dir="ltr">O(n)</bdi></strong>. لو محتاج بحث معكوس ابني Dictionary تانية للمعكوس.</li>
+<li><code>KeyValuePair</code> هو struct (نسخة)، فتعديل <code>kv.Value</code> مابيغيرش الـ Dictionary. لو الـ Value نفسها كائن (class) تعديل خصائصها بيظهر.</li>
+</ul>
+<h2 id="s5">5. أنماط استخدام حقيقية</h2>
+<h3>أ) عدّ التكرارات (Counting)</h3>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">counts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">StringComparer</span><span class="p">.</span><span class="n">OrdinalIgnoreCase</span><span class="p">);</span>
+<span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">words</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">counts</span><span class="p">.</span><span class="n">TryGetValue</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="k">out</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">c</span><span class="p">);</span><span class="w">   </span><span class="c1">// c = 0 لو مش موجود</span>
+<span class="w">    </span><span class="n">counts</span><span class="p">[</span><span class="n">w</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">                  </span><span class="c1">// الـ Hash بياتحسب مرتين</span>
+<span class="p">}</span>
+
+<span class="c1">// النسخة الأسرع (.NET 6+): Hash واحد</span>
+<span class="k">using</span><span class="w"> </span><span class="nn">System.Runtime.InteropServices</span><span class="p">;</span>
+<span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">words</span><span class="p">)</span>
+<span class="w">    </span><span class="n">CollectionsMarshal</span><span class="p">.</span><span class="n">GetValueRefOrAddDefault</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="k">out</span><span class="w"> </span><span class="n">_</span><span class="p">)</span><span class="o">++</span><span class="p">;</span>
+</code></pre></div>
+
+<h3>ب) تجميع (Grouping)</h3>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">byCustomer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Order</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+<span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">orders</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">byCustomer</span><span class="p">.</span><span class="n">TryGetValue</span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">CustomerId</span><span class="p">,</span><span class="w"> </span><span class="k">out</span><span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">list</span><span class="p">))</span>
+<span class="w">        </span><span class="n">byCustomer</span><span class="p">[</span><span class="n">o</span><span class="p">.</span><span class="n">CustomerId</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Order</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">    </span><span class="n">list</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">o</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="c1">// بديل أقصر: orders.GroupBy(o =&gt; o.CustomerId).ToDictionary(g =&gt; g.Key, g =&gt; g.ToList());</span>
+</code></pre></div>
+
+<h3>ج) Lookup بدل البحث المتكرر في List (تحسين <bdi dir="ltr">O(n²)</bdi> ← <bdi dir="ltr">O(n)</bdi>)</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// بطيء: كل طلب يبحث في قائمة العملاء</span>
+<span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">orders</span><span class="p">)</span>
+<span class="w">    </span><span class="n">o</span><span class="p">.</span><span class="n">Customer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">customers</span><span class="p">.</span><span class="n">First</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">CustomerId</span><span class="p">);</span>
+
+<span class="c1">// سريع: نبني Dictionary مرة واحدة</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">customerById</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">customers</span><span class="p">.</span><span class="n">ToDictionary</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Id</span><span class="p">);</span>
+<span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">orders</span><span class="p">)</span>
+<span class="w">    </span><span class="n">o</span><span class="p">.</span><span class="n">Customer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">customerById</span><span class="p">[</span><span class="n">o</span><span class="p">.</span><span class="n">CustomerId</span><span class="p">];</span>
+</code></pre></div>
+
+<p>ملاحظة: <code>ToDictionary</code> بترمي <code>ArgumentException</code> لو فيه مفاتيح مكررة في المصدر (مشكلة شائعة مع بيانات غير نظيفة).</p>
+<h3>د) Cache بسيط ومشكلته الخفية</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">static</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_cache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">();</span>
+<span class="k">static</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="nf">Get</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">_cache</span><span class="p">.</span><span class="n">TryGetValue</span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="k">out</span><span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">p</span><span class="p">))</span>
+<span class="w">        </span><span class="n">_cache</span><span class="p">[</span><span class="n">id</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LoadFromDb</span><span class="p">(</span><span class="n">id</span><span class="p">);</span><span class="w">   </span><span class="c1">// خطر لو فيه أكتر من ثريد (ASP.NET بيشغّل طلبات متعددة)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">p</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>الـ <code>Dictionary</code> مش Thread-Safe، والقراءة مع كتابة في نفس الوقت ممكن تعمل تلف في الهيكل الداخلي (حتى حلقات لا نهائية في الـ chain في حالات نادرة). البديل:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">static</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">ConcurrentDictionary</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">Lazy</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">_cache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">();</span>
+<span class="k">static</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="nf">Get</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="w">    </span><span class="n">_cache</span><span class="p">.</span><span class="n">GetOrAdd</span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Lazy</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">LoadFromDb</span><span class="p">(</span><span class="n">k</span><span class="p">))).</span><span class="n">Value</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>ليه Lazy؟</strong> لأن <code>GetOrAdd(key, factory)</code> ممكن تشغّل الـ factory أكتر من مرة لنفس الـ Key لو اتنين ثريدات دخلوا معاً (واحد بس هيتخزّن نتيجته). لو الـ factory ثقيل (DB call) هيظهر النداء مكرر. الـ <code>Lazy&lt;T&gt;</code> بيضمن تنفيذها مرة واحدة.</p>
+<h2 id="s6">6. مقارنة الـ Dictionaries</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>النوع</th>
+<th>البنية الداخلية</th>
+<th>البحث</th>
+<th>الترتيب</th>
+<th>Thread-Safe</th>
+<th>متى</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Dictionary&lt;K,V&gt;</code></td>
+<td>Hash Table</td>
+<td><bdi dir="ltr">O(1)</bdi> متوسط</td>
+<td>لا</td>
+<td>لا</td>
+<td>الافتراضي في 95% من الحالات</td>
+</tr>
+<tr>
+<td><code>SortedDictionary&lt;K,V&gt;</code></td>
+<td>Red-Black Tree</td>
+<td><bdi dir="ltr">O(log n)</bdi></td>
+<td>بالـ Key</td>
+<td>لا</td>
+<td>لو محتاج ترتيب دائم مع إدخال/حذف كتير</td>
+</tr>
+<tr>
+<td><code>SortedList&lt;K,V&gt;</code></td>
+<td>Arrays مرتبة</td>
+<td><bdi dir="ltr">O(log n)</bdi></td>
+<td>بالـ Key</td>
+<td>لا</td>
+<td>إدخال قليل وقراءة كتير، ذاكرة أقل (الإدخال <bdi dir="ltr">O(n)</bdi>)</td>
+</tr>
+<tr>
+<td><code>ConcurrentDictionary&lt;K,V&gt;</code></td>
+<td>Hash مع قفل مقسم</td>
+<td><bdi dir="ltr">O(1)</bdi></td>
+<td>لا</td>
+<td>نعم</td>
+<td>وصول من ثريدات متعددة</td>
+</tr>
+<tr>
+<td><code>Hashtable</code></td>
+<td>Hash قديم (object)</td>
+<td><bdi dir="ltr">O(1)</bdi></td>
+<td>لا</td>
+<td>جزئياً</td>
+<td>تجنبه (Boxing ولا Type Safety)</td>
+</tr>
+<tr>
+<td><code>ImmutableDictionary</code></td>
+<td>Tree</td>
+<td><bdi dir="ltr">O(log n)</bdi></td>
+<td>لا</td>
+<td>نعم (مش بيتغير)</td>
+<td>لقطات بيانات مشتركة من غير قفل</td>
+</tr>
+</tbody>
+</table></div>
+<p class="note info"><strong>Trade-off الذاكرة:</strong> كل Entry في Dictionary بتكلف حجم الـ Key + Value + 8 bytes (hash و next) + خانة bucket. لو عندك ملايين عنصر صغير ممكن Array مرتبة + <code>BinarySearch</code> توفر ذاكرة.</p>
+<h2 id="s7">7. <bdi dir="ltr">HashSet&lt;T&gt;</bdi></h2>
+<h3>الفكرة والتنفيذ</h3>
+<p><code>HashSet&lt;T&gt;</code> هي <strong>Hash Table بدون Values</strong>: بنفس الـ <code>buckets</code> + <code>entries</code> لكن الـ Entry فيها القيمة نفسها فقط. الـ contract بتاع <code>Equals</code>/<code>GetHashCode</code> مطبق بالظبط وكل تحذيرات الـ Keys القابلة للتغيير تنطبق هنا.</p>
+<p class="note info"><strong>الميزة الأساسية:</strong> مجموعة عناصر <strong>بدون تكرار</strong> + <code>Contains</code> بـ <bdi dir="ltr">O(1)</bdi> متوسط. <strong>المشكلة إنه مفيش Index</strong> (<code>set[0]</code> غير موجودة) لأن الترتيب مش مضمون.</p>
+<h3>العمليات</h3>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashSet</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">};</span>
+
+<span class="kt">bool</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">set</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span><span class="w">        </span><span class="c1">// false: موجود بالفعل، مفيش Exception ولا تكرار</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">set</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span><span class="w">        </span><span class="c1">// true</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">set</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span><span class="w">   </span><span class="c1">// true (O(1))</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">set</span><span class="p">.</span><span class="n">Remove</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w">     </span><span class="c1">// true</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="k">set</span><span class="p">.</span><span class="n">Count</span><span class="p">);</span>
+
+<span class="c1">// أشهر أسلوب: كشف التكرار أثناء المرور</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">seen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashSet</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">email</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">emails</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">seen</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">email</span><span class="p">))</span>
+<span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$&quot;مكرر: {email}&quot;</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>عمليات المجموعات (نقطة القوة الحقيقية)</h3>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashSet</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="p">};</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashSet</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="p">};</span>
+
+<span class="kt">var</span><span class="w"> </span><span class="n">union</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashSet</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a</span><span class="p">);</span><span class="w"> </span><span class="n">union</span><span class="p">.</span><span class="n">UnionWith</span><span class="p">(</span><span class="n">b</span><span class="p">);</span><span class="w">              </span><span class="c1">// {1,2,3,4,5}</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">inter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashSet</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a</span><span class="p">);</span><span class="w"> </span><span class="n">inter</span><span class="p">.</span><span class="n">IntersectWith</span><span class="p">(</span><span class="n">b</span><span class="p">);</span><span class="w">          </span><span class="c1">// {3,4}</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">diff</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashSet</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a</span><span class="p">);</span><span class="w"> </span><span class="n">diff</span><span class="p">.</span><span class="n">ExceptWith</span><span class="p">(</span><span class="n">b</span><span class="p">);</span><span class="w">              </span><span class="c1">// {1,2}</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">sym</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashSet</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a</span><span class="p">);</span><span class="w"> </span><span class="n">sym</span><span class="p">.</span><span class="n">SymmetricExceptWith</span><span class="p">(</span><span class="n">b</span><span class="p">);</span><span class="w">      </span><span class="c1">// {1,2,5}</span>
+
+<span class="kt">bool</span><span class="w"> </span><span class="n">sub</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashSet</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="p">}.</span><span class="n">IsSubsetOf</span><span class="p">(</span><span class="n">a</span><span class="p">);</span><span class="w">   </span><span class="c1">// true</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">over</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">Overlaps</span><span class="p">(</span><span class="n">b</span><span class="p">);</span><span class="w">                              </span><span class="c1">// true</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">same</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">SetEquals</span><span class="p">(</span><span class="k">new</span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">});</span><span class="w">          </span><span class="c1">// true (الترتيب لا يهم)</span>
+</code></pre></div>
+
+<p class="note info"><strong>تصحيح مهم:</strong> الـ <code>UnionWith</code> و <code>IntersectWith</code> و <code>ExceptWith</code> بتعدّل الـ HashSet نفسها (In-place)، مش بترجّع نسخة جديدة. أما الـ LINQ <code>Union</code>/<code>Intersect</code>/<code>Except</code> فبترجّع <code>IEnumerable</code> جديدة مؤجلة التنفيذ.</p>
+<h3>أمثلة واقعية</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// 1) صلاحيات: هل المستخدم عنده كل الصلاحيات المطلوبة؟</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">userPerms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashSet</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="n">Permissions</span><span class="p">,</span><span class="w"> </span><span class="n">StringComparer</span><span class="p">.</span><span class="n">OrdinalIgnoreCase</span><span class="p">);</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">allowed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">required</span><span class="p">.</span><span class="n">All</span><span class="p">(</span><span class="n">userPerms</span><span class="p">.</span><span class="n">Contains</span><span class="p">);</span><span class="w">   </span><span class="c1">// أو userPerms.IsSupersetOf(required)</span>
+
+<span class="c1">// 2) BFS/DFS: منع زيارة نفس العقدة مرتين (يمنع حلقات لا نهائية)</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">visited</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashSet</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">visited</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">node</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* أول مرة نزورها */</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// 3) تشويه التكرار بشكل مؤكد</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">uniqueIds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashSet</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">ids</span><span class="p">).</span><span class="n">Count</span><span class="p">;</span>
+</code></pre></div>
+
+<h3>مقارنة: List مقابل HashSet مقابل SortedSet</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>الخاصية</th>
+<th><code>List&lt;T&gt;</code></th>
+<th><code>HashSet&lt;T&gt;</code></th>
+<th><code>SortedSet&lt;T&gt;</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>يسمح بالتكرار</td>
+<td>نعم</td>
+<td>لا</td>
+<td>لا</td>
+</tr>
+<tr>
+<td>الـ Index</td>
+<td>نعم</td>
+<td>لا</td>
+<td>لا</td>
+</tr>
+<tr>
+<td><code>Contains</code></td>
+<td><bdi dir="ltr">O(n)</bdi></td>
+<td><bdi dir="ltr">O(1)</bdi> متوسط</td>
+<td><bdi dir="ltr">O(log n)</bdi></td>
+</tr>
+<tr>
+<td><code>Add</code></td>
+<td><bdi dir="ltr">O(1)</bdi> amortized</td>
+<td><bdi dir="ltr">O(1)</bdi> متوسط</td>
+<td><bdi dir="ltr">O(log n)</bdi></td>
+</tr>
+<tr>
+<td>الترتيب</td>
+<td>ترتيب الإدخال</td>
+<td>غير مضمون</td>
+<td>مرتبة دائماً</td>
+</tr>
+<tr>
+<td>عمليات المجموعات</td>
+<td>يدوية</td>
+<td>موجودة</td>
+<td>موجودة + Range queries (<code>GetViewBetween</code>)</td>
+</tr>
+<tr>
+<td>الذاكرة</td>
+<td>أقل ما يمكن</td>
+<td>أعلى (buckets + entries)</td>
+<td>أعلى (عقد Tree)</td>
+</tr>
+</tbody>
+</table></div>
+<h3>حدود ومخاطر</h3>
+<ul>
+<li><strong>لو القائمة صغيرة (أقل من ~10–20 عنصر):</strong> <code>List.Contains</code> ممكن تكون أسرع من <code>HashSet</code> بسبب كلفة حساب الـ Hash. القياس (Benchmark) هو الحكم.</li>
+<li><strong>الـ HashSet مش Thread-Safe.</strong> للكتابة المتزامنة استخدم <code>lock</code> أو <code>ConcurrentDictionary&lt;T, byte&gt;</code> أو <code>ImmutableHashSet&lt;T&gt;</code>.</li>
+<li><strong>الترتيب غير مضمون:</strong> لو محتاج تشيل التكرار مع الحفاظ على الترتيب استخدم <code>Distinct()</code> (بتحفظ أول ظهور).</li>
+<li><strong>الـ Keys القابلة للتعديل</strong> نفس مشكلة Dictionary.</li>
+<li><code>set.TryGetValue(x, out var actual)</code> مفيد للـ canonicalization (ترجع النسخة المخزّنة نفسها لو عايز تدمج نسخ متكررة من الـ objects).</li>
+</ul>
+<h2 id="s8">8. أسئلة وإجابات (اختبر نفسك)</h2>
+<p class="qa-hint">اضغط على أي سؤال لتظهر إجابته. جرّب تجاوب في دماغك الأول.</p>
+
+<details class="qa">
+<summary>س1: إيه الفرق بين <code>dict.Add(k, v)</code> و <code>dict[k] = v</code>؟</summary>
+<div class="qa-body">
+<p>ج: <code>Add</code> بترمي <code>ArgumentException</code> لو الـ Key موجود. الـ indexer بيعمل Upsert (يضيف أو يستبدل بدون ما يرمي). استخدم <code>Add</code> لما تكرار الـ Key يبقى خطأ في المنطق، و<code>TryAdd</code> لما تبقى حالة طبيعية.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س2: ليه <code>ContainsKey</code> ثم <code>dict[key]</code> هدر أداء؟</summary>
+<div class="qa-body">
+<p>ج: لأنها تحسب الـ Hash وتمشي على الـ chain مرتين. <code>TryGetValue</code> بتعملها مرة واحدة وترجع القيمة والحالة معاً.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س3: كتبت كلاس وعملت override لـ <code>Equals</code> بس، واستخدمته كـ Key. إيه اللي هيحصل؟</summary>
+<div class="qa-body">
+<p>ج: الـ <code>GetHashCode</code> الافتراضي (مبني على الـ reference) هيخلي المفاتيح المتساوية تروح buckets مختلفة، فالبحث هيفشل رغم وجود القيمة. لازم تعمل override للاثنين بنفس الحقول.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س4: إيه اللي يحصل لو عدّلت حقل داخل في حساب الـ Hash بعد ما الـ Key اتخزّن؟</summary>
+<div class="qa-body">
+<p>ج: العنصر يفضل في الـ bucket القديم لكن البحث هيروح للجديد، فالعنصر يبقى "ضايع" (موجود في <code>Count</code> ومانقدرش نوصله أو نحذفه). الحل: Keys غير قابلة للتغيير.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س5: هل تقدر تعتمد على ترتيب العناصر في <code>Dictionary</code> أو <code>HashSet</code>؟</summary>
+<div class="qa-body">
+<p>ج: لا. غالباً هيكون ترتيب الإدخال من غير حذف، لكن مش مضمون وهيتغير بعد الحذف (الـ Free List) أو في أي إصدار مستقبلي. لو محتاج ترتيب استخدم <code>SortedDictionary</code> أو رتّب النتيجة بـ <code>OrderBy</code>.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س6: ليه <code>HashSet.Add</code> بترجع bool؟</summary>
+<div class="qa-body">
+<p>ج: عشان توفّر عليك الـ Hash التاني: <code>if (!seen.Add(x))</code> بدل <code>if (seen.Contains(x)) ... else seen.Add(x)</code>، وبكده الفحص والإضافة في عملية واحدة.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س7: الفرق بين <code>set.UnionWith(other)</code> و <code>set.Union(other)</code> (LINQ)؟</summary>
+<div class="qa-body">
+<p>ج: الأولى بتعدّل الـ set نفسها (In-place) وماتبترجعش حاجة. التانية بترجع <code>IEnumerable&lt;T&gt;</code> جديدة مؤجلة التنفيذ من غير ما تغير الأصل.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س8: عندك قائمتين في كل واحدة 50,000 Id، وعايز المشتركات. أسرع طريقة؟</summary>
+<div class="qa-body">
+<p>ج: ابني <code>HashSet</code> من واحدة واعمل <code>IntersectWith</code> مع التانية: <bdi dir="ltr">O(n+m)</bdi>. الطريقة الساذجة (loop في loop أو <code>List.Contains</code>) تعمل 2.5 مليار مقارنة.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س9: متى يكون <code>Dictionary</code> اختيار سيئ؟</summary>
+<div class="qa-body">
+<p>ج: (1) محتاج ترتيب ← Sorted. (2) محتاج الكتابة من ثريدات ← Concurrent. (3) مجموعة صغيرة جداً ← ممكن List/Array أسرع. (4) Keys بها Hash سيء ← تدهور لـ <bdi dir="ltr">O(n)</bdi>.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س10: كود بيعمل <code>dict[key]</code> وبيرمي <code>KeyNotFoundException</code> في الإنتاج أحياناً فقط. إيه الأسباب المحتملة؟</summary>
+<div class="qa-body">
+<p>ج: Case-Sensitivity ("Abc" مقابل "abc")، مسافات زايدة في النص، قيمة متغيرة من مصدر خارجي، أو Dictionary مشتركة بين ثريدات بتتغير أثناء القراءة. الحل: <code>TryGetValue</code> + معالجة صريحة لحالة الغياب، وComparer مناسب.</p>
+</div>
+</details>
+<h2 id="s9">9. ملاحظة سينيور إضافية</h2>
+<ul>
+<li><strong>الـ Load Factor والـ Capacity في Dictionary:</strong> مش فيه "Load Factor" قابل للضبط زي Java، الـ Resize بيحصل لما الـ entries تمتلي، فالتحكم الوحيد عندك هو تحديد الـ Capacity المبدئية.</li>
+<li><strong>Hash Quality:</strong> لو بتكتب <code>GetHashCode</code> بالإيد استخدم <code>HashCode.Combine(...)</code> مش <code>X ^ Y</code> (الـ XOR بيعمل Collisions كتير لأن <code>(1,2)</code> و <code>(2,1)</code> هيعطوا نفس النتيجة).</li>
+<li><strong>تحب نتعمق في:</strong> (أ) كيف تشتغل <code>ConcurrentDictionary</code> جواها (Lock Striping)، (ب) تعمل Benchmark بـ BenchmarkDotNet للمقارنة بين List وHashSet. قولي أي واحدة تحبها.</li>
+</ul>
+    </article>
+    <div class="pager">
+<a class="pn next" href="session03-part3-queue-stack.html"><small>التالي</small>Queue و Stack والخلاصة</a>
+<a class="pn" href="session03-part1-collections-list.html"><small>السابق</small>مقدمة Collections و <bdi dir="ltr">List&lt;T&gt;</bdi></a>
+    </div>
+  </main>
+</div>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('#toc a'));
+  var heads=links.map(function(a){return document.getElementById(a.getAttribute('href').slice(1));}).filter(Boolean);
+  function setActive(id){links.forEach(function(a){if(a.getAttribute('href')==='#'+id)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current');});}
+  if('IntersectionObserver' in window&&heads.length){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)setActive(e.target.id);});},{rootMargin:'-80px 0px -70% 0px'});
+    heads.forEach(function(h){io.observe(h);});
+    setActive(heads[0].id);
+  }
+  document.querySelectorAll('div.codehilite').forEach(function(box){
+    var b=document.createElement('button');b.type='button';b.className='copy';b.textContent='نسخ';
+    b.addEventListener('click',function(){
+      var t=box.querySelector('pre').innerText;
+      function done(){b.textContent='تم النسخ';setTimeout(function(){b.textContent='نسخ';},1500);}
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){});}
+      else{var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(ta);}
+    });
+    box.appendChild(b);
+  });
+})();
+
+</script>
+</body>
+</html>

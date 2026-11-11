@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session 03 – الجزء 3: Queue و Stack والخلاصة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ECF1F4; --surface:#fff; --ink:#16212B; --muted:#526170; --line:#D3DDE4;
+  --accent:#0B6B76; --accent-soft:#DCEFF1; --warn:#A3304B; --warn-soft:#F8E5E9;
+  --code-bg:#0F1A26; --inline-bg:#E3EAEF;
+  --font:"IBM Plex Sans Arabic","Segoe UI",Tahoma,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Consolas,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C141B; --surface:#131E28; --ink:#E4ECF2; --muted:#93A3B2; --line:#243442;
+    --accent:#55C2CC; --accent-soft:#14323A; --warn:#F08AA0; --warn-soft:#35202A;
+    --code-bg:#08101A; --inline-bg:#1B2A37; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C141B; --surface:#131E28; --ink:#E4ECF2; --muted:#93A3B2; --line:#243442;
+  --accent:#55C2CC; --accent-soft:#14323A; --warn:#F08AA0; --warn-soft:#35202A;
+  --code-bg:#08101A; --inline-bg:#1B2A37; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.95;-webkit-text-size-adjust:100%}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+.top{position:sticky;top:0;z-index:10;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{max-width:1180px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:24px;min-height:56px}
+.brand{font-weight:700;white-space:nowrap}
+.parts{display:flex;gap:4px;overflow-x:auto;margin-inline-start:auto}
+.parts a{display:flex;flex-direction:column;line-height:1.35;padding:8px 14px;text-decoration:none;color:var(--muted);font-size:14px;white-space:nowrap;border-bottom:3px solid transparent}
+.parts a span{font-size:12px;opacity:.85}
+.parts a:hover{color:var(--ink)}
+.parts a[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent);font-weight:500}
+
+.layout{max-width:1180px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:230px minmax(0,1fr);gap:48px}
+.side{position:sticky;top:72px;align-self:start;max-height:calc(100vh - 90px);overflow:auto;padding:36px 0}
+.side-t{margin:0 0 10px;font-size:13px;color:var(--muted);font-weight:500}
+#toc{list-style:none;margin:0;padding:0;border-inline-start:2px solid var(--line)}
+#toc a{display:block;padding:5px 14px;margin-inline-start:-2px;border-inline-start:2px solid transparent;color:var(--muted);text-decoration:none;font-size:14px;line-height:1.55}
+#toc a:hover{color:var(--ink)}
+#toc a[aria-current="true"]{color:var(--accent);border-inline-start-color:var(--accent);font-weight:500}
+
+main{min-width:0;max-width:780px;padding:40px 0 72px}
+.hero{padding-bottom:24px;margin-bottom:8px;border-bottom:1px solid var(--line)}
+.part-l{margin:0 0 6px;color:var(--accent);font-weight:500;font-size:15px}
+h1{font-size:clamp(1.9rem,4.2vw,2.7rem);line-height:1.35;margin:0 0 12px;font-weight:700;direction:rtl}
+.lead{margin:0;color:var(--muted);font-size:1.08rem}
+h2{font-size:1.6rem;line-height:1.5;margin:3.2rem 0 .6rem;font-weight:700}
+h3{font-size:1.2rem;line-height:1.6;margin:2.2rem 0 .3rem;color:var(--accent);font-weight:700}
+p{margin:.9rem 0}
+ul,ol{padding-inline-start:1.5em;margin:.9rem 0}
+li{margin:.3rem 0}
+strong{font-weight:700}
+code{font-family:var(--mono);font-size:.86em;background:var(--inline-bg);padding:.12em .4em;border-radius:5px;direction:ltr;unicode-bidi:isolate}
+
+div.codehilite{position:relative;background:var(--code-bg);border-radius:10px;margin:1.1rem 0;direction:ltr;text-align:left}
+div.codehilite pre{margin:0;padding:18px 18px 16px;overflow-x:auto;font-family:var(--mono);font-size:13.5px;line-height:1.7;background:none;tab-size:4}
+div.codehilite code{background:none;padding:0;font-size:inherit;border-radius:0;direction:ltr;unicode-bidi:plaintext}
+.copy{position:absolute;top:8px;right:8px;font:500 12px var(--font);color:#C9D6E2;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:6px;padding:3px 10px;cursor:pointer}
+.copy:hover{background:rgba(255,255,255,.16)}
+
+.tw{overflow-x:auto;margin:1.2rem 0;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:15px;line-height:1.7}
+th,td{padding:10px 14px;text-align:start;vertical-align:top;border-bottom:1px solid var(--line)}
+th{background:var(--accent-soft);font-weight:700;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td code{white-space:nowrap}
+
+p.note{padding:14px 18px;border-inline-start:4px solid var(--accent);background:var(--accent-soft);border-radius:8px}
+p.note.warn{border-inline-start-color:var(--warn);background:var(--warn-soft)}
+p.note.warn>strong:first-child{color:var(--warn)}
+
+.qa-hint{color:var(--muted);font-size:15px;margin-bottom:1rem}
+details.qa{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin:10px 0}
+details.qa[open]{border-color:var(--accent)}
+details.qa>summary{list-style:none;cursor:pointer;padding:14px 18px 14px 46px;font-weight:700;position:relative;line-height:1.75}
+details.qa>summary::-webkit-details-marker{display:none}
+details.qa>summary::before{content:"+";position:absolute;inset-inline-end:auto;left:16px;top:12px;width:22px;height:22px;line-height:20px;text-align:center;border:1.5px solid var(--accent);border-radius:50%;color:var(--accent);font-weight:500}
+details.qa[open]>summary::before{content:"−"}
+.qa-body{padding:2px 18px 12px;border-top:1px dashed var(--line)}
+.qa-body p:first-child{margin-top:.8rem}
+
+.pager{display:flex;gap:16px;margin-top:4rem}
+.pn{flex:1;display:block;padding:14px 18px;border:1px solid var(--line);border-radius:10px;background:var(--surface);text-decoration:none;color:var(--ink);font-weight:500;line-height:1.6}
+.pn small{display:block;color:var(--muted);font-weight:400}
+.pn:hover{border-color:var(--accent)}
+.pn.next{text-align:start}
+
+@media (max-width:900px){
+  .layout{grid-template-columns:minmax(0,1fr);gap:0}
+  .side{display:none}
+  .brand{display:none}
+  .parts{margin-inline-start:0}
+  body{font-size:16.5px}
+  main{padding-top:28px}
+}
+@media print{.top,.side,.pager,.copy{display:none}details.qa>*{display:block}body{background:#fff}}
+
+pre { line-height: 125%; }
+td.linenos .normal { color: #6e7681; background-color: #0d1117; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #6e7681; background-color: #0d1117; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #e6edf3; background-color: #6e7681; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #e6edf3; background-color: #6e7681; padding-left: 5px; padding-right: 5px; }
+
+
+.codehilite .c { color: #8B949E; font-style: italic } /* Comment */
+.codehilite .err { color: #F85149 } /* Error */
+.codehilite .esc { color: #E6EDF3 } /* Escape */
+.codehilite .g { color: #E6EDF3 } /* Generic */
+.codehilite .k { color: #FF7B72 } /* Keyword */
+.codehilite .l { color: #A5D6FF } /* Literal */
+.codehilite .n { color: #E6EDF3 } /* Name */
+.codehilite .o { color: #FF7B72; font-weight: bold } /* Operator */
+.codehilite .x { color: #E6EDF3 } /* Other */
+.codehilite .p { color: #E6EDF3 } /* Punctuation */
+.codehilite .ch { color: #8B949E; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #8B949E; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #8B949E; font-weight: bold; font-style: italic } /* Comment.Preproc */
+.codehilite .cpf { color: #8B949E; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #8B949E; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #8B949E; font-weight: bold; font-style: italic } /* Comment.Special */
+.codehilite .gd { color: #FFA198; background-color: #490202 } /* Generic.Deleted */
+.codehilite .ge { color: #E6EDF3; font-style: italic } /* Generic.Emph */
+.codehilite .ges { color: #E6EDF3; font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #FFA198 } /* Generic.Error */
+.codehilite .gh { color: #79C0FF; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #56D364; background-color: #0F5323 } /* Generic.Inserted */
+.codehilite .go { color: #8B949E } /* Generic.Output */
+.codehilite .gp { color: #8B949E } /* Generic.Prompt */
+.codehilite .gs { color: #E6EDF3; font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #79C0FF } /* Generic.Subheading */
+.codehilite .gt { color: #FF7B72 } /* Generic.Traceback */
+.codehilite .g-Underline { color: #E6EDF3; text-decoration: underline } /* Generic.Underline */
+.codehilite .kc { color: #79C0FF } /* Keyword.Constant */
+.codehilite .kd { color: #FF7B72 } /* Keyword.Declaration */
+.codehilite .kn { color: #FF7B72 } /* Keyword.Namespace */
+.codehilite .kp { color: #79C0FF } /* Keyword.Pseudo */
+.codehilite .kr { color: #FF7B72 } /* Keyword.Reserved */
+.codehilite .kt { color: #FF7B72 } /* Keyword.Type */
+.codehilite .ld { color: #79C0FF } /* Literal.Date */
+.codehilite .m { color: #A5D6FF } /* Literal.Number */
+.codehilite .s { color: #A5D6FF } /* Literal.String */
+.codehilite .na { color: #E6EDF3 } /* Name.Attribute */
+.codehilite .nb { color: #E6EDF3 } /* Name.Builtin */
+.codehilite .nc { color: #F0883E; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #79C0FF; font-weight: bold } /* Name.Constant */
+.codehilite .nd { color: #D2A8FF; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #FFA657 } /* Name.Entity */
+.codehilite .ne { color: #F0883E; font-weight: bold } /* Name.Exception */
+.codehilite .nf { color: #D2A8FF; font-weight: bold } /* Name.Function */
+.codehilite .nl { color: #79C0FF; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #FF7B72 } /* Name.Namespace */
+.codehilite .nx { color: #E6EDF3 } /* Name.Other */
+.codehilite .py { color: #79C0FF } /* Name.Property */
+.codehilite .nt { color: #7EE787 } /* Name.Tag */
+.codehilite .nv { color: #79C0FF } /* Name.Variable */
+.codehilite .ow { color: #FF7B72; font-weight: bold } /* Operator.Word */
+.codehilite .pm { color: #E6EDF3 } /* Punctuation.Marker */
+.codehilite .w { color: #6E7681 } /* Text.Whitespace */
+.codehilite .mb { color: #A5D6FF } /* Literal.Number.Bin */
+.codehilite .mf { color: #A5D6FF } /* Literal.Number.Float */
+.codehilite .mh { color: #A5D6FF } /* Literal.Number.Hex */
+.codehilite .mi { color: #A5D6FF } /* Literal.Number.Integer */
+.codehilite .mo { color: #A5D6FF } /* Literal.Number.Oct */
+.codehilite .sa { color: #79C0FF } /* Literal.String.Affix */
+.codehilite .sb { color: #A5D6FF } /* Literal.String.Backtick */
+.codehilite .sc { color: #A5D6FF } /* Literal.String.Char */
+.codehilite .dl { color: #79C0FF } /* Literal.String.Delimiter */
+.codehilite .sd { color: #A5D6FF } /* Literal.String.Doc */
+.codehilite .s2 { color: #A5D6FF } /* Literal.String.Double */
+.codehilite .se { color: #79C0FF } /* Literal.String.Escape */
+.codehilite .sh { color: #79C0FF } /* Literal.String.Heredoc */
+.codehilite .si { color: #A5D6FF } /* Literal.String.Interpol */
+.codehilite .sx { color: #A5D6FF } /* Literal.String.Other */
+.codehilite .sr { color: #79C0FF } /* Literal.String.Regex */
+.codehilite .s1 { color: #A5D6FF } /* Literal.String.Single */
+.codehilite .ss { color: #A5D6FF } /* Literal.String.Symbol */
+.codehilite .bp { color: #E6EDF3 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #D2A8FF; font-weight: bold } /* Name.Function.Magic */
+.codehilite .vc { color: #79C0FF } /* Name.Variable.Class */
+.codehilite .vg { color: #79C0FF } /* Name.Variable.Global */
+.codehilite .vi { color: #79C0FF } /* Name.Variable.Instance */
+.codehilite .vm { color: #79C0FF } /* Name.Variable.Magic */
+.codehilite .il { color: #A5D6FF } /* Literal.Number.Integer.Long */
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">Session 03 · Collections</div>
+    <nav class="parts" aria-label="أجزاء السيشن">
+<a href="session03-part1-collections-list.html"><span>الجزء 1</span>مقدمة Collections و <bdi dir="ltr">List&lt;T&gt;</bdi></a>
+<a href="session03-part2-dictionary-hashset.html"><span>الجزء 2</span>Dictionary و HashSet</a>
+<a href="session03-part3-queue-stack.html" aria-current="page"><span>الجزء 3</span>Queue و Stack والخلاصة</a>
+    </nav>
+  </div>
+</header>
+<div class="layout">
+  <aside class="side">
+    <p class="side-t">في الصفحة دي</p>
+    <ol id="toc">
+<li><a href="#s1">1. ليه هياكل بترتيب مقيّد؟</a></li>
+<li><a href="#s2">2. <bdi dir="ltr">Queue&lt;T&gt;</bdi> (FIFO: الأول دخولاً أول خروجاً)</a></li>
+<li><a href="#s3">3. <bdi dir="ltr">Stack&lt;T&gt;</bdi> (LIFO: الأخير دخولاً أول خروجاً)</a></li>
+<li><a href="#s4">4. مقارنة: Queue مقابل Stack</a></li>
+<li><a href="#s5">5. خلاصة السيشن كله: إزاي تختار الـ Collection؟</a></li>
+<li><a href="#s6">6. أسئلة وإجابات (اختبر نفسك)</a></li>
+<li><a href="#s7">7. ملاحظات سينيور أخيرة</a></li>
+    </ol>
+  </aside>
+  <main>
+    <div class="hero">
+      <p class="part-l">الجزء 3 من 3</p>
+      <h1><bdi dir="ltr">Queue&lt;T&gt;</bdi> و <bdi dir="ltr">Stack&lt;T&gt;</bdi> + خلاصة اختيار الـ Collection</h1>
+      <p class="lead">شرح سينيور لطالب Backend .NET: هياكل بتحكم الترتيب بدل الوصول العشوائي، وهي أساس خوارزميات كتير في الشغل الحقيقي.</p>
+    </div>
+    <article>
+
+<h2 id="s1">1. ليه هياكل بترتيب مقيّد؟</h2>
+<p><code>Queue</code> و <code>Stack</code> مش أقل قوة من <code>List</code>، هما بيقيّدوا الواجهة عن قصد عشان يضمنوا حاجتين:</p>
+<ol>
+<li><strong>وضوح النية:</strong> الكود بيقول إنك بتعالج ترتيب معين (الأقدم أولاً / الأحدث أولاً)، ومايقدرش حد يكسر الترتيب بالغلط.</li>
+<li><strong>أداء مضمون:</strong> العمليات الأساسية كلها <bdi dir="ltr">O(1)</bdi> من غير أي زحزحة عناصر، بخلاف <code>List.RemoveAt(0)</code>.</li>
+</ol>
+<h2 id="s2">2. <bdi dir="ltr">Queue&lt;T&gt;</bdi> (FIFO: الأول دخولاً أول خروجاً)</h2>
+<h3>العمليات</h3>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Queue</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="n">q</span><span class="p">.</span><span class="n">Enqueue</span><span class="p">(</span><span class="s">&quot;A&quot;</span><span class="p">);</span><span class="w">            </span><span class="c1">// إضافة من النهاية</span>
+<span class="n">q</span><span class="p">.</span><span class="n">Enqueue</span><span class="p">(</span><span class="s">&quot;B&quot;</span><span class="p">);</span>
+<span class="n">q</span><span class="p">.</span><span class="n">Enqueue</span><span class="p">(</span><span class="s">&quot;C&quot;</span><span class="p">);</span>
+
+<span class="kt">string</span><span class="w"> </span><span class="n">first</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">q</span><span class="p">.</span><span class="n">Peek</span><span class="p">();</span><span class="w">   </span><span class="c1">// &quot;A&quot; مشاهدة بدون إخراج</span>
+<span class="kt">string</span><span class="w"> </span><span class="n">got</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">q</span><span class="p">.</span><span class="n">Dequeue</span><span class="p">();</span><span class="c1">// &quot;A&quot; إخراج من البداية</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">q</span><span class="p">.</span><span class="n">Count</span><span class="p">);</span><span class="c1">// 2</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">q</span><span class="p">.</span><span class="n">TryDequeue</span><span class="p">(</span><span class="k">out</span><span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">item</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* &quot;B&quot; */</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c1">// بدون Exception لو فاضية</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">q</span><span class="p">.</span><span class="n">TryPeek</span><span class="p">(</span><span class="k">out</span><span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">next</span><span class="p">))</span><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="cm">/* &quot;C&quot; */</span><span class="w"> </span><span class="p">}</span>
+
+<span class="kt">bool</span><span class="w"> </span><span class="n">has</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">q</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="s">&quot;C&quot;</span><span class="p">);</span><span class="w">  </span><span class="c1">// O(n)</span>
+<span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">q</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span><span class="w">     </span><span class="c1">// من الأقدم للأحدث، ولا يخرج العناصر</span>
+
+<span class="n">q</span><span class="p">.</span><span class="n">Clear</span><span class="p">();</span>
+<span class="n">q</span><span class="p">.</span><span class="n">Dequeue</span><span class="p">();</span><span class="w">                 </span><span class="c1">// InvalidOperationException: Queue empty</span>
+</code></pre></div>
+
+<p class="note warn"><strong>تنبيه:</strong> <code>Dequeue()</code>/<code>Peek()</code> على قائمة فاضية بترمي Exception، ففي المعالجات التي القائمة ممكن تفضى فيها استخدم <code>TryDequeue</code>.</p>
+<h3>من جوه: Circular Buffer (مش Linked List)</h3>
+<p class="note warn"><strong>مفهوم خاطئ شائع:</strong> "Queue مبنية على Linked List". غلط. هي Array داخلية مع مؤشرين:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">private</span><span class="w"> </span><span class="n">T</span><span class="p">[]</span><span class="w"> </span><span class="n">_array</span><span class="p">;</span>
+<span class="k">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">_head</span><span class="p">;</span><span class="w">   </span><span class="c1">// مكان أقدم عنصر (اللي هيخرج)</span>
+<span class="k">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">_tail</span><span class="p">;</span><span class="w">   </span><span class="c1">// مكان الإضافة الجاي</span>
+<span class="k">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">_size</span><span class="p">;</span>
+</code></pre></div>
+
+<p>كل <code>Dequeue</code> بيزوّد <code>_head</code> بس (مابيزحزحش حاجة)، ولما المؤشر يوصل نهاية الـ Array يرجع للبداية (<strong>wrap-around</strong> بالـ modulo). المساحات اللي بتتحرر بالـ Dequeue بتتعاد استخدامها بالـ Enqueue.</p>
+<p><strong>ليه التصميم ده؟</strong> لأن البديل البدائي (<code>List.RemoveAt(0)</code>) بيزحزح كل العناصر ← <bdi dir="ltr">O(n)</bdi>. الـ Circular Buffer بيخلي الـ <code>Enqueue</code> و <code>Dequeue</code> كلهم <bdi dir="ltr">O(1)</bdi> مع محافظة على الـ Cache Locality (ذاكرة متصلة) تماماً ما بتفقده الـ LinkedList.</p>
+<ul>
+<li>لما تمتلي الـ Array بيحصل Resize (تضاعف) ونسخ للعناصر <strong>بترتيبها المنطقي</strong> (فالـ wrap بيتفك)، نفس منطق <code>List&lt;T&gt;</code> ← Amortized <bdi dir="ltr">O(1)</bdi>.</li>
+<li>لو عارف الحجم التقريبي: <code>new Queue&lt;T&gt;(capacity)</code> أو <code>EnsureCapacity(n)</code> (.NET 6+).</li>
+</ul>
+<h3>باج شهير: استخدام List كـ Queue</h3>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">sw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="n">Diagnostics</span><span class="p">.</span><span class="n">Stopwatch</span><span class="p">.</span><span class="n">StartNew</span><span class="p">();</span>
+
+<span class="kt">var</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Enumerable</span><span class="p">.</span><span class="n">Range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="n">_000</span><span class="p">));</span>
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">list</span><span class="p">.</span><span class="n">Count</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">list</span><span class="p">.</span><span class="n">RemoveAt</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">          </span><span class="c1">// O(n) لكل عنصر ← O(n²)</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$&quot;List : {sw.ElapsedMilliseconds} ms&quot;</span><span class="p">);</span>
+
+<span class="n">sw</span><span class="p">.</span><span class="n">Restart</span><span class="p">();</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Queue</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Enumerable</span><span class="p">.</span><span class="n">Range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="n">_000</span><span class="p">));</span>
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">q</span><span class="p">.</span><span class="n">Count</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">q</span><span class="p">.</span><span class="n">Dequeue</span><span class="p">();</span><span class="w">                  </span><span class="c1">// O(1) لكل عنصر</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$&quot;Queue: {sw.ElapsedMilliseconds} ms&quot;</span><span class="p">);</span>
+</code></pre></div>
+
+<p>جرّبها: الفرق بيبقى مئات المرات. ده باج حقيقي بيحصل لما حد يعمل "طابور مهام" بـ List.</p>
+<h3>أمثلة استخدام حقيقية</h3>
+<p><strong>1) BFS (البحث العرضي): أقصر مسار في Graph غير موزون:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">ShortestPath</span><span class="p">(</span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">target</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">visited</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashSet</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="p">};</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">queue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Queue</span><span class="o">&lt;</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">Node</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Dist</span><span class="p">)</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">    </span><span class="n">queue</span><span class="p">.</span><span class="n">Enqueue</span><span class="p">((</span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">));</span>
+
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">queue</span><span class="p">.</span><span class="n">Count</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">dist</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">queue</span><span class="p">.</span><span class="n">Dequeue</span><span class="p">();</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">node</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">target</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">dist</span><span class="p">;</span>
+
+<span class="w">        </span><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">next</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">graph</span><span class="p">.</span><span class="n">GetValueOrDefault</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()))</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">visited</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">next</span><span class="p">))</span><span class="w">                 </span><span class="c1">// منع التكرار والحلقات</span>
+<span class="w">                </span><span class="n">queue</span><span class="p">.</span><span class="n">Enqueue</span><span class="p">((</span><span class="n">next</span><span class="p">,</span><span class="w"> </span><span class="n">dist</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">;</span><span class="w">   </span><span class="c1">// مش متصل</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>ليه Queue ممتازة هنا؟</strong> لأن FIFO بيضمن إنك تزور كل العقد اللي على بعد 1 قبل اللي على بعد 2، فأول مرة توصل فيها للهدف هي أقصر مسار مضمون.</p>
+<p><strong>2) طابور مهام داخل التطبيق:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">jobs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Queue</span><span class="o">&lt;</span><span class="n">Func</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+<span class="n">jobs</span><span class="p">.</span><span class="n">Enqueue</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">SendEmailAsync</span><span class="p">(</span><span class="s">&quot;a@x.com&quot;</span><span class="p">));</span>
+<span class="n">jobs</span><span class="p">.</span><span class="n">Enqueue</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">GenerateReportAsync</span><span class="p">());</span>
+
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">jobs</span><span class="p">.</span><span class="n">TryDequeue</span><span class="p">(</span><span class="k">out</span><span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">job</span><span class="p">))</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nf">job</span><span class="p">();</span>
+</code></pre></div>
+
+<h3>المخاطر في الإنتاج</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>المشكلة</th>
+<th>السبب</th>
+<th>الحل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Queue&lt;T&gt;</code> مش Thread-Safe</td>
+<td><code>Enqueue</code> و <code>Dequeue</code> متزامنتين ممكن تتلف الـ <code>_head/_tail/_size</code></td>
+<td><code>ConcurrentQueue&lt;T&gt;</code> (Lock-free) أو <code>Channel&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td>قائمة غير محدودة بتكبر للنهاية</td>
+<td>الـ Producer أسرع من الـ Consumer ← Memory بتزيد حتى <code>OutOfMemoryException</code></td>
+<td>Bounded Queue (حد أقصى) + Backpressure</td>
+</tr>
+<tr>
+<td>الـ Capacity بتفضل كبيرة بعد الذروة</td>
+<td>الـ Array مبتصغرش تلقائياً</td>
+<td><code>TrimExcess()</code></td>
+</tr>
+<tr>
+<td>محتاج أولويات مش FIFO بس</td>
+<td>Queue مابتعرفش أهمية العنصر</td>
+<td><code>PriorityQueue&lt;TElement,TPriority&gt;</code> (.NET 6+)</td>
+</tr>
+</tbody>
+</table></div>
+<h3><bdi dir="ltr">Channel&lt;T&gt;</bdi>: البديل الحديث للـ Producer/Consumer</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="nn">System.Threading.Channels</span><span class="p">;</span>
+
+<span class="kt">var</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Channel</span><span class="p">.</span><span class="n">CreateBounded</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">BoundedChannelOptions</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">FullMode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoundedChannelFullMode</span><span class="p">.</span><span class="n">Wait</span><span class="w">   </span><span class="c1">// لو امتلت ← الـ Producer يستنى (Backpressure)</span>
+<span class="p">});</span>
+
+<span class="c1">// Producer</span>
+<span class="n">_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Task</span><span class="p">.</span><span class="n">Run</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">channel</span><span class="p">.</span><span class="n">Writer</span><span class="p">.</span><span class="n">WriteAsync</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<span class="w">    </span><span class="n">channel</span><span class="p">.</span><span class="n">Writer</span><span class="p">.</span><span class="n">Complete</span><span class="p">();</span>
+<span class="p">});</span>
+
+<span class="c1">// Consumer</span>
+<span class="k">await</span><span class="w"> </span><span class="nf">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">channel</span><span class="p">.</span><span class="n">Reader</span><span class="p">.</span><span class="n">ReadAllAsync</span><span class="p">())</span>
+<span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+</code></pre></div>
+
+<p>ميزتها على <code>ConcurrentQueue</code>: مابتعملش Busy-Wait ولا Blocking للثريد، بتدعم async/await وحدود السعة.</p>
+<h3><bdi dir="ltr">PriorityQueue&lt;TElement, TPriority&gt;</bdi> (.NET 6+)</h3>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">pq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">PriorityQueue</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="n">pq</span><span class="p">.</span><span class="n">Enqueue</span><span class="p">(</span><span class="s">&quot;عادي&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">);</span>
+<span class="n">pq</span><span class="p">.</span><span class="n">Enqueue</span><span class="p">(</span><span class="s">&quot;عاجل&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="n">pq</span><span class="p">.</span><span class="n">Enqueue</span><span class="p">(</span><span class="s">&quot;متوسط&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span>
+
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">pq</span><span class="p">.</span><span class="n">TryDequeue</span><span class="p">(</span><span class="k">out</span><span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="k">out</span><span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">priority</span><span class="p">))</span>
+<span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$&quot;{priority}: {task}&quot;</span><span class="p">);</span><span class="w">   </span><span class="c1">// 1 ← 3 ← 5 (الأصغر رقماً أولاً)</span>
+</code></pre></div>
+
+<ul>
+<li>بنيتها <strong>Min-Heap</strong>: Enqueue/Dequeue = <bdi dir="ltr">O(log n)</bdi>.</li>
+<li><strong>مش Stable:</strong> العناصر بنفس الأولوية ممكن تخرج بترتيب مختلف عن الإدخال.</li>
+<li>مفيش <code>Contains</code> ولا تغيير أولوية عنصر موجود (مشكلة لو عايز Dijkstra حرفياً: الحل إضافة نسخة جديدة وتجاهل القديمة لما تخرج).</li>
+</ul>
+<h2 id="s3">3. <bdi dir="ltr">Stack&lt;T&gt;</bdi> (LIFO: الأخير دخولاً أول خروجاً)</h2>
+<h3>العمليات</h3>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Stack</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="n">s</span><span class="p">.</span><span class="n">Push</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">s</span><span class="p">.</span><span class="n">Push</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">s</span><span class="p">.</span><span class="n">Push</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">top</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">Peek</span><span class="p">();</span><span class="w">   </span><span class="c1">// 3 (مشاهدة)</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">popped</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">Pop</span><span class="p">();</span><span class="w">  </span><span class="c1">// 3 (إخراج)</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">Count</span><span class="p">);</span><span class="w">   </span><span class="c1">// 2</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">TryPop</span><span class="p">(</span><span class="k">out</span><span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">x</span><span class="p">))</span><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="cm">/* 2 */</span><span class="w"> </span><span class="p">}</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">TryPeek</span><span class="p">(</span><span class="k">out</span><span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">y</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* 1 */</span><span class="w"> </span><span class="p">}</span>
+
+<span class="n">s</span><span class="p">.</span><span class="n">Pop</span><span class="p">();</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">Pop</span><span class="p">();</span><span class="w">      </span><span class="c1">// التانية هترمي InvalidOperationException (فاضية)</span>
+</code></pre></div>
+
+<h3>من جوه</h3>
+<p><code>Stack&lt;T&gt;</code> هي <strong>Array</strong> + عداد <code>_size</code> فقط: <code>Push</code> بيكتب في <code>_array[_size++]</code>، <code>Pop</code> بيقلل <code>_size</code>. نفس منطق تضاعف الـ Capacity في <code>List&lt;T&gt;</code>.</p>
+<h3>مفاهيم خاطئة شائعة (مهم جداً)</h3>
+<p class="note warn"><strong>خطأ 1: "الـ <code>Stack&lt;T&gt;</code> بتتخزن في ذاكرة الـ Stack".</strong> غلط تماماً. الـ <code>Stack&lt;T&gt;</code> الـ Collection كائن عادي على الـ <strong>Heap</strong> (الـ Array جواها كمان على الـ Heap). اسمها مشتق من السلوك (LIFO) مش من مكان التخزين. الـ <strong>Call Stack</strong> للثريد شيء مختلف تماماً (ذاكرة محجوزة لكل ثريد، حوالي 1MB افتراضياً على Windows).</p>
+<p class="note warn"><strong>خطأ 2: "الـ foreach على Stack بيمشي بترتيب الإدخال".</strong> لأ، بيمشي من <strong>القمة</strong> للقاع:</p>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Stack</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="n">s</span><span class="p">.</span><span class="n">Push</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">Push</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">Push</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+
+<span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="p">);</span><span class="w">        </span><span class="c1">// 3 2 1</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="kt">string</span><span class="p">.</span><span class="n">Join</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">ToArray</span><span class="p">()));</span><span class="w">   </span><span class="c1">// 3,2,1</span>
+
+<span class="kt">var</span><span class="w"> </span><span class="n">s2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Stack</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="k">new</span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">});</span><span class="w">         </span><span class="c1">// الـ constructor بيعمل Push لكل عنصر بالترتيب</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">s2</span><span class="p">.</span><span class="n">Pop</span><span class="p">());</span><span class="w">                        </span><span class="c1">// 3 (مش 1!)</span>
+</code></pre></div>
+
+<p>النتيجة العملية: لو حوّلت Stack لـ List بـ <code>ToList()</code> هتحصل على الترتيب <strong>المعكوس</strong>.</p>
+<h3>أمثلة استخدام حقيقية</h3>
+<p><strong>1) التحقق من الأقواس المتوازنة (مثل محلل JSON/التعبيرات):</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">IsBalanced</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">text</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">pairs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="kt">char</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">[</span><span class="sc">&#39;)&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;(&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="sc">&#39;]&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;[&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="sc">&#39;}&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;{&#39;</span><span class="w"> </span><span class="p">};</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Stack</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">text</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="sc">&#39;(&#39;</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="sc">&#39;[&#39;</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="sc">&#39;{&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="n">stack</span><span class="p">.</span><span class="n">Push</span><span class="p">(</span><span class="n">c</span><span class="p">);</span>
+<span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="nf">if</span><span class="w"> </span><span class="p">(</span><span class="n">pairs</span><span class="p">.</span><span class="n">TryGetValue</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="k">out</span><span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">open</span><span class="p">))</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">stack</span><span class="p">.</span><span class="n">TryPop</span><span class="p">(</span><span class="k">out</span><span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">top</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">top</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">open</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">false</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">stack</span><span class="p">.</span><span class="n">Count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">IsBalanced</span><span class="p">(</span><span class="s">&quot;{[()]}&quot;</span><span class="p">));</span><span class="w">  </span><span class="c1">// True</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">IsBalanced</span><span class="p">(</span><span class="s">&quot;{[(])}&quot;</span><span class="p">));</span><span class="w">  </span><span class="c1">// False</span>
+</code></pre></div>
+
+<p><strong>ليه Stack؟</strong> القوس اللي بتقفله لازم يكون <strong>آخر قوس فتحته</strong> ← LIFO بالظبط.</p>
+<p><strong>2) Undo / Redo (Stackين):</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">undo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Stack</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">redo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Stack</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="kt">string</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span>
+
+<span class="k">void</span><span class="w"> </span><span class="nf">Edit</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">newText</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">undo</span><span class="p">.</span><span class="n">Push</span><span class="p">(</span><span class="n">text</span><span class="p">);</span>
+<span class="w">    </span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">newText</span><span class="p">;</span>
+<span class="w">    </span><span class="n">redo</span><span class="p">.</span><span class="n">Clear</span><span class="p">();</span><span class="w">        </span><span class="c1">// أي تعديل جديد يلغي الـ Redo</span>
+<span class="p">}</span>
+<span class="k">void</span><span class="w"> </span><span class="nf">Undo</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">undo</span><span class="p">.</span><span class="n">TryPop</span><span class="p">(</span><span class="k">out</span><span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">prev</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">redo</span><span class="p">.</span><span class="n">Push</span><span class="p">(</span><span class="n">text</span><span class="p">);</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prev</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+<span class="k">void</span><span class="w"> </span><span class="nf">Redo</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">redo</span><span class="p">.</span><span class="n">TryPop</span><span class="p">(</span><span class="k">out</span><span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">next</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">undo</span><span class="p">.</span><span class="n">Push</span><span class="p">(</span><span class="n">text</span><span class="p">);</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">next</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>3) DFS (البحث العمودي) بدون Recursion:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Dfs</span><span class="p">(</span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">start</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">visited</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashSet</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Stack</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">    </span><span class="n">stack</span><span class="p">.</span><span class="n">Push</span><span class="p">(</span><span class="n">start</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">stack</span><span class="p">.</span><span class="n">Count</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stack</span><span class="p">.</span><span class="n">Pop</span><span class="p">();</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">visited</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">node</span><span class="p">))</span><span class="w"> </span><span class="k">continue</span><span class="p">;</span>
+<span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">node</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">next</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">graph</span><span class="p">.</span><span class="n">GetValueOrDefault</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()))</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">visited</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">next</span><span class="p">))</span><span class="w"> </span><span class="n">stack</span><span class="p">.</span><span class="n">Push</span><span class="p">(</span><span class="n">next</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>ليه Stack متصلة بـ StackOverflowException؟</h3>
+<p>أي دالة بتنادي نفسها (Recursion) بتحجز Stack Frame في الـ Call Stack. لو العمق كبير (شجرة عميقة، ملفات متداخلة، Graph ضخم)، الـ Call Stack بتخلص والـ CLR بيرمي <code>StackOverflowException</code>. <strong>المصيبة:</strong> الاستثناء ده <strong>ماينفعش تمسكه بـ try/catch</strong> والـ Process كلها بتوقف. فلو مدخلاتك من مستخدم ممكن تبقى عميقة جداً، حوّل الـ Recursion لـ Loop + <code>Stack&lt;T&gt;</code> صريحة (زي مثال DFS اللي فوق) وكده الذاكرة هتبقى على الـ Heap ومحكومة بحجم الذاكرة المتاحة بدل 1MB.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// خطر: عمق غير محدود</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Depth</span><span class="p">(</span><span class="n">Node</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Math</span><span class="p">.</span><span class="n">Max</span><span class="p">(</span><span class="n">Depth</span><span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">Left</span><span class="p">),</span><span class="w"> </span><span class="n">Depth</span><span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">Right</span><span class="p">));</span>
+</code></pre></div>
+
+<h3>Thread-Safety</h3>
+<p><code>Stack&lt;T&gt;</code> مش Thread-Safe، البديل <code>ConcurrentStack&lt;T&gt;</code> (لكن هام: ترتيب LIFO مع عدة ثريدات مالهوش معنى كتير لأن مين "الأخير" بيتغير باستمرار).</p>
+<h2 id="s4">4. مقارنة: Queue مقابل Stack</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th><code>Queue&lt;T&gt;</code></th>
+<th><code>Stack&lt;T&gt;</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الترتيب</td>
+<td>FIFO</td>
+<td>LIFO</td>
+</tr>
+<tr>
+<td>إضافة</td>
+<td><code>Enqueue</code></td>
+<td><code>Push</code></td>
+</tr>
+<tr>
+<td>إخراج</td>
+<td><code>Dequeue</code> / <code>TryDequeue</code></td>
+<td><code>Pop</code> / <code>TryPop</code></td>
+</tr>
+<tr>
+<td>مشاهدة</td>
+<td><code>Peek</code> / <code>TryPeek</code></td>
+<td><code>Peek</code> / <code>TryPeek</code></td>
+</tr>
+<tr>
+<td>البنية الداخلية</td>
+<td>Circular Array (head + tail)</td>
+<td>Array + size</td>
+</tr>
+<tr>
+<td>ترتيب foreach</td>
+<td>من الأقدم</td>
+<td>من القمة (الأحدث)</td>
+</tr>
+<tr>
+<td><code>Contains</code></td>
+<td><bdi dir="ltr">O(n)</bdi></td>
+<td><bdi dir="ltr">O(n)</bdi></td>
+</tr>
+<tr>
+<td>أشهر استخدام</td>
+<td>BFS، طوابير مهام، رسائل، Buffering</td>
+<td>DFS، Undo/Redo، Parsing، Backtracking</td>
+</tr>
+<tr>
+<td>Thread-Safe بديل</td>
+<td><code>ConcurrentQueue</code> / <code>Channel</code> / <code>BlockingCollection</code></td>
+<td><code>ConcurrentStack</code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="s5">5. خلاصة السيشن كله: إزاي تختار الـ Collection؟</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>احتياجك</th>
+<th>الاختيار</th>
+<th>السبب التقني</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>قائمة عناصر بتكبر، ووصول بالـ index</td>
+<td><code>List&lt;T&gt;</code></td>
+<td>Array ديناميكية، قراءة <bdi dir="ltr">O(1)</bdi></td>
+</tr>
+<tr>
+<td>حجم ثابت وأقصى سرعة</td>
+<td><code>T[]</code> / <code>Span&lt;T&gt;</code></td>
+<td>بدون طبقة إضافية</td>
+</tr>
+<tr>
+<td>بحث بمفتاح ← قيمة</td>
+<td><code>Dictionary&lt;K,V&gt;</code></td>
+<td>Hash Table، <bdi dir="ltr">O(1)</bdi> متوسط</td>
+</tr>
+<tr>
+<td>عناصر فريدة + تحقق سريع</td>
+<td><code>HashSet&lt;T&gt;</code></td>
+<td>Hash Table بدون Values</td>
+</tr>
+<tr>
+<td>معالجة بترتيب الوصول</td>
+<td><code>Queue&lt;T&gt;</code></td>
+<td>Circular Buffer، <bdi dir="ltr">O(1)</bdi></td>
+</tr>
+<tr>
+<td>تراجع / بحث عمودي / Parsing</td>
+<td><code>Stack&lt;T&gt;</code></td>
+<td>Array + عداد، <bdi dir="ltr">O(1)</bdi></td>
+</tr>
+<tr>
+<td>معالجة بأولوية</td>
+<td><code>PriorityQueue&lt;T,P&gt;</code></td>
+<td>Min-Heap، <bdi dir="ltr">O(log n)</bdi></td>
+</tr>
+<tr>
+<td>مفاتيح/عناصر مرتبة دائماً</td>
+<td><code>SortedDictionary</code> / <code>SortedSet</code></td>
+<td>Red-Black Tree، <bdi dir="ltr">O(log n)</bdi></td>
+</tr>
+<tr>
+<td>وصول من أكتر من ثريد</td>
+<td><code>Concurrent*</code> / <code>Channel&lt;T&gt;</code></td>
+<td>تجنب تلف البيانات الداخلية</td>
+</tr>
+<tr>
+<td>مشاركة بيانات ثابتة بين ثريدات</td>
+<td><code>Immutable*</code></td>
+<td>لا تحتاج قفل للقراءة</td>
+</tr>
+</tbody>
+</table></div>
+<h3>التكلفة الزمنية المجمعة</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>النوع</th>
+<th>وصول/بحث</th>
+<th>إضافة</th>
+<th>حذف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>List&lt;T&gt;</code></td>
+<td><bdi dir="ltr">O(1)</bdi> index / <bdi dir="ltr">O(n)</bdi> بحث</td>
+<td><bdi dir="ltr">O(1)</bdi> amortized من النهاية</td>
+<td><bdi dir="ltr">O(n)</bdi></td>
+</tr>
+<tr>
+<td><code>Dictionary</code></td>
+<td><bdi dir="ltr">O(1)</bdi> متوسط</td>
+<td><bdi dir="ltr">O(1)</bdi> متوسط</td>
+<td><bdi dir="ltr">O(1)</bdi> متوسط</td>
+</tr>
+<tr>
+<td><code>HashSet</code></td>
+<td><bdi dir="ltr">O(1)</bdi> متوسط</td>
+<td><bdi dir="ltr">O(1)</bdi> متوسط</td>
+<td><bdi dir="ltr">O(1)</bdi> متوسط</td>
+</tr>
+<tr>
+<td><code>Queue</code></td>
+<td>Peek <bdi dir="ltr">O(1)</bdi></td>
+<td><bdi dir="ltr">O(1)</bdi> amortized</td>
+<td><bdi dir="ltr">O(1)</bdi></td>
+</tr>
+<tr>
+<td><code>Stack</code></td>
+<td>Peek <bdi dir="ltr">O(1)</bdi></td>
+<td><bdi dir="ltr">O(1)</bdi> amortized</td>
+<td><bdi dir="ltr">O(1)</bdi></td>
+</tr>
+<tr>
+<td><code>SortedSet</code> / <code>SortedDictionary</code></td>
+<td><bdi dir="ltr">O(log n)</bdi></td>
+<td><bdi dir="ltr">O(log n)</bdi></td>
+<td><bdi dir="ltr">O(log n)</bdi></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="s6">6. أسئلة وإجابات (اختبر نفسك)</h2>
+<p class="qa-hint">اضغط على أي سؤال لتظهر إجابته. جرّب تجاوب في دماغك الأول.</p>
+
+<details class="qa">
+<summary>س1: ليه <code>Queue&lt;T&gt;</code> مش مبنية على Linked List؟</summary>
+<div class="qa-body">
+<p>ج: الـ Linked List بتعمل Allocation لكل عنصر وبتخسر Cache Locality. الـ Circular Array بتحقق نفس <bdi dir="ltr">O(1)</bdi> مع ذاكرة متصلة وGC أخف.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س2: إيه اللي يحصل لو عملت <code>Dequeue()</code> على Queue فاضية؟ وإزاي تتجنبه؟</summary>
+<div class="qa-body">
+<p>ج: <code>InvalidOperationException</code>. تتجنبه بـ <code>TryDequeue</code> أو فحص <code>Count &gt; 0</code>. في الكود المتزامن الفحص المنفصل مش كافي (Race Condition) — استخدم <code>ConcurrentQueue.TryDequeue</code>.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س3: إيه ناتج الكود ده؟</summary>
+<div class="qa-body">
+<div class="codehilite"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Stack</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="k">new</span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="w"> </span><span class="p">});</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">Peek</span><span class="p">());</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="kt">string</span><span class="p">.</span><span class="n">Join</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">));</span>
+</code></pre></div>
+
+<p>ج: <code>30</code> ثم <code>30,20,10</code>. الـ constructor بيعمل Push لكل عنصر بالترتيب فالأخير (30) يبقى القمة، والـ foreach بيبدأ من القمة.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س4: هل <code>Stack&lt;T&gt;</code> الـ Collection هي نفسها الـ Call Stack؟</summary>
+<div class="qa-body">
+<p>ج: لا. <code>Stack&lt;T&gt;</code> كائن على الـ Heap بيتحكم فيه المبرمج، الـ Call Stack مساحة محجوزة لكل ثريد بـ Stack Frames للدوال. نفس المبدأ (LIFO) لكن مكان مختلف وحدود مختلفة.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س5: ليه StackOverflowException خطيرة أكتر من أي Exception تاني؟</summary>
+<div class="qa-body">
+<p>ج: ماتنفعش تمسكها بـ catch، والـ Process بتموت فوراً. لو المدخلات ممكن تسبب Recursion عميق استخدم Loop + <code>Stack&lt;T&gt;</code> أو حدّ العمق بشكل صريح.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س6: عندك Producer بيبعت 10,000 رسالة في الثانية وConsumer بيعالج 1,000. إيه اللي هيحصل مع <code>Queue</code> غير محدودة؟</summary>
+<div class="qa-body">
+<p>ج: الـ Memory هتكبر باستمرار (9,000 عنصر إضافي كل ثانية) حتى يحصل ضغط على الـ GC أو OOM. الحل: <code>Channel.CreateBounded</code> مع <code>FullMode.Wait</code> (Backpressure)، أو زيادة Consumers.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س7: ما الفرق بين <code>Peek</code> و <code>Dequeue</code>/<code>Pop</code>؟</summary>
+<div class="qa-body">
+<p>ج: <code>Peek</code> بيشوف العنصر من غير ما يشيله، التانية بتشيله وترجعه.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س8: عايز Queue فيها أولويات ومع ذلك تحافظ على ترتيب الإدخال للعناصر بنفس الأولوية. إزاي؟</summary>
+<div class="qa-body">
+<p>ج: <code>PriorityQueue</code> مش Stable، فاستخدم أولوية مركبة <code>(priority, sequenceNumber)</code> من عداد بيزيد مع كل Enqueue.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س9: ليه مش بنستخدم Stack مكان Queue في BFS؟</summary>
+<div class="qa-body">
+<p>ج: Stack هتخليك تنزل للعمق أولاً (DFS) فمش هتضمن أقصر مسار. الـ FIFO هو اللي بيخلي الزيارة مستوى مستوى.</p>
+</div>
+</details>
+<details class="qa">
+<summary>س10: اختار الـ Collection المناسبة لـ: (أ) منع معالجة نفس الطلب مرتين، (ب) حفظ سجل آخر 10 عمليات دخول، (ج) تشغيل المهام بترتيب الوصول.</summary>
+<div class="qa-body">
+<p>ج: (أ) <code>HashSet&lt;RequestId&gt;</code> (مع تنظيف دوري أو TTL لتجنب نمو لا نهائي). (ب) Queue بحد أقصى 10 (امسح الأقدم بـ <code>Dequeue</code> عند الإضافة) أو Circular Buffer مخصص. (ج) <code>Queue&lt;T&gt;</code> أو <code>Channel&lt;T&gt;</code> لو متزامن.</p>
+</div>
+</details>
+<h2 id="s7">7. ملاحظات سينيور أخيرة</h2>
+<ul>
+<li><strong>Deque غير موجود مباشرة:</strong> .NET مافيهاش هيكل Double-Ended Queue جاهز (إضافة/حذف من الطرفين <bdi dir="ltr">O(1)</bdi>)، والممكن تستخدم <code>LinkedList&lt;T&gt;</code> أو تبني واحد بالـ Circular Array.</li>
+<li><strong>قراءة الـ Source Code:</strong> افتح مصدر <code>List&lt;T&gt;</code> و<code>Dictionary</code> و<code>Queue&lt;T&gt;</code> على <code>source.dot.net</code> — هتلاقي كل اللي اتشرح هنا مكتوب حرفياً.</li>
+<li><strong>استخدام LINQ مع الـ Collections:</strong> كل ما هو <code>IEnumerable</code> بيشتغل مع LINQ، لكن محاذير الـ Deferred Execution والـ Multiple Enumeration لازم تتعلمها بعد السيشن ده.</li>
+<li><strong>اقتراح للتعمق بعد الملفات الثلاثة:</strong> (أ) LINQ والـ Deferred Execution بعمق، (ب) الـ Concurrent Collections والـ Lock Striping، (ج) <code>Span&lt;T&gt;</code> و<code>Memory&lt;T&gt;</code>، (د) تمارين كود شاملة على Collections للتطبيق. قولي تحب نبدأ بأنهي واحد.</li>
+</ul>
+    </article>
+    <div class="pager">
+<span></span>
+<a class="pn" href="session03-part2-dictionary-hashset.html"><small>السابق</small>Dictionary و HashSet</a>
+    </div>
+  </main>
+</div>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('#toc a'));
+  var heads=links.map(function(a){return document.getElementById(a.getAttribute('href').slice(1));}).filter(Boolean);
+  function setActive(id){links.forEach(function(a){if(a.getAttribute('href')==='#'+id)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current');});}
+  if('IntersectionObserver' in window&&heads.length){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)setActive(e.target.id);});},{rootMargin:'-80px 0px -70% 0px'});
+    heads.forEach(function(h){io.observe(h);});
+    setActive(heads[0].id);
+  }
+  document.querySelectorAll('div.codehilite').forEach(function(box){
+    var b=document.createElement('button');b.type='button';b.className='copy';b.textContent='نسخ';
+    b.addEventListener('click',function(){
+      var t=box.querySelector('pre').innerText;
+      function done(){b.textContent='تم النسخ';setTimeout(function(){b.textContent='نسخ';},1500);}
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){});}
+      else{var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(ta);}
+    });
+    box.appendChild(b);
+  });
+})();
+
+</script>
+</body>
+</html>

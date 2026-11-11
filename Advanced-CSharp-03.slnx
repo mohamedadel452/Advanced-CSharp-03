@@ -1,3 +1,9 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+    <File Path="Study_Guide/session03-part1-collections-list.html" />
+    <File Path="Study_Guide/session03-part2-dictionary-hashset.html" />
+    <File Path="Study_Guide/session03-part3-queue-stack.html" />
+  </Folder>
   <Project Path="Advanced-CSharp-03/Advanced-CSharp-03.csproj" />
 </Solution>
